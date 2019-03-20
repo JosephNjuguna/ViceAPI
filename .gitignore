@@ -62,3 +62,6 @@ typings/
 
 #ignore db file
 *.odb
+
+# personal notes
+/misc
