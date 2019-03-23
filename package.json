@@ -4,7 +4,7 @@
   "description": "postgresql api ",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node_modules/.bin/nodemon app.js"
   },
   "author": "JosephNjuguna",
@@ -13,6 +13,10 @@
     "body-parser": "^1.18.3",
     "dotenv": "^7.0.0",
     "express": "^4.16.4",
-    "nodemon": "^1.18.10"
+    "nodemon": "^1.18.10",
+    "pg": "^7.9.0"
+  },
+  "devDependencies": {
+    "jest": "^24.5.0"
   }
 }
