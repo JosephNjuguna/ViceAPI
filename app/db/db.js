@@ -7,10 +7,19 @@ dotenv.config();
 const dbConfig = {
   connectionString: process.env.DATABASE_URL
 };
+
+const env_setup = (env) => {
+  if (env == "development") {
+    dbConfig['connectionString'] = process.env.DATABASE_URL;
+  } else if (env == "test") {
+    dbConfig['connectionString'] = process.env.DATABASE_TEST_URL;
+  }
+};
+
 const pool = new Pool(dbConfig);
 
 pool.on('connect', () => {
-  console.log('connected to the db');
+  console.log(`connected to the database ${dbConfig.connectionString}`);
 });
 
 const addTables = () => {
@@ -26,27 +35,29 @@ const addTables = () => {
       )`;
   pool.query(queryText)
     .then((res) => {
-      console.log(`connected to the database ${dbConfig.connectionString}`);
+      console.log("table created successfully" + res);
     })
     .catch((err) => {
-      console.log('not connected' + err);
+      console.log("table creation failed" + err);
       pool.end();
     });
-}
+};
 
 const dropTables = () => {
   const queryText = 'DROP TABLE IF EXISTS users';
   pool.query(queryText)
     .then((res) => {
-      console.log(res);
+      console.log("table dropped successfully" + res);
     })
     .catch((err) => {
-      console.log(err);
+      console.log("table drop failed" + err);
       pool.end();
     });
-}
+};
+
 module.exports = {
   addTables,
   dropTables,
-  pool
+  pool,
+  env_setup
 };

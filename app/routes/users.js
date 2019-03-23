@@ -1,10 +1,25 @@
 const express = require('express');
 const controllers = require('../controllers/users');
+const validate  = require('../middleware/validations');
 const router = express.Router();
 
-router.route('/').get(controllers.welcome);
-router.route('/signup').post(controllers.signup);
-router.route('/login').post(controllers.login);
-router.route('/users').get(controllers.allUsers);
+router.get(
+    '/',
+    controllers.welcome
+);
+router.post(
+    '/signup',  
+    validate.validatesignup,
+    controllers.signup
+);
+router.post(
+    '/login',
+    validate.validatelogin,
+    controllers.login
+);
+router.get(
+    '/users',
+    controllers.allUsers
+);
 
 module.exports = router;
