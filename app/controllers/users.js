@@ -60,8 +60,33 @@ function signup(req, res) {
     }
   });
 }
+
 function login(req, res, login) {
+  const user = {
+    email : req.body.email,
+    password: req.body.password
+  };
+  pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
+    if (error) {
+      return res.json({
+        "message": "Internal server error"
+      });
+    } else {
+      if (dbRes.rows[0] == undefined || dbRes.rows[0] == null) {
+        return res.status(401).json({
+          "message": "Invalid email or password"
+        });
+      } else {
+        if (login) {
+          return res.status(200).json({
+            "user": "successful login"
+          });
+        }
+      }
+    }
+  });
 }
+
 function allUsers(req, res) {
   pool.query('SELECT * FROM users', (errorRes, dbRes) => {
     if (errorRes) {
