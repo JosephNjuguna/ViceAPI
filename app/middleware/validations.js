@@ -12,7 +12,6 @@ class Validations {
                 return reqResponses.handleError(message, 400, res);
             }
             if (name) {
-                console.log('validated');
                 re = /[a-zA-Z]{3,}_*[0-9_]*[a-zA-Z]*_*/;
                 message = "user validation failed";
                 if (!re.test(name) || name == "") return reqResponses.handleError(message, 400, res);
@@ -42,7 +41,6 @@ class Validations {
                 return reqResponses.handleError(message, 400, res);
             }
             if (name) {
-                console.log('validated');
                 re = /[a-zA-Z]{3,}_*[0-9_]*[a-zA-Z]*_*/;
                 message = "user validation failed";
                 if (!re.test(name) || name == "") return reqResponses.handleError(message, 400, res);
