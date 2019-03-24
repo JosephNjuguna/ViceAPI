@@ -3,6 +3,8 @@ const {
   pool
 } = require('../db/db');
 
+const {Token} = require('../helpers/jwt');
+
 function welcome(req, res, next) {
   const message = [200, "welcome to the api", true];
   return res.status(message[0]).json({
@@ -78,9 +80,22 @@ function login(req, res, login) {
         });
       } else {
         if (login) {
-          return res.status(200).json({
-            "user": "successful login"
+
+          token = Token.generateToken({
+            email: user.email,
+            password : user.password
           });
+
+          const reply = {
+            "logged in at": "1/1/2019",
+            user: user.email,
+            authtoken : token,
+          };
+
+          return res.status(200).json({
+            "user": reply
+          });
+
         }
       }
     }

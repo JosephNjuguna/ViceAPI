@@ -35,11 +35,11 @@ const addTables = () => {
       )`;
   pool.query(queryText)
     .then((res) => {
-      console.log("table created successfully" + res);
+      return res
     })
     .catch((err) => {
-      console.log("table creation failed" + err);
       pool.end();
+      return err;
     });
 };
 
@@ -47,11 +47,11 @@ const dropTables = () => {
   const queryText = 'DROP TABLE IF EXISTS users';
   pool.query(queryText)
     .then((res) => {
-      console.log("table dropped successfully" + res);
+      return res
     })
     .catch((err) => {
-      console.log("table drop failed" + err);
       pool.end();
+      return err;
     });
 };
 
