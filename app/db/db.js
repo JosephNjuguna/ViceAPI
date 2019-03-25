@@ -19,7 +19,7 @@ const env_setup = (env) => {
 const pool = new Pool(dbConfig);
 
 pool.on('connect', () => {
-  console.log(`connected to the database ${dbConfig.connectionString}`);
+  // console.log(`connected to the database ${dbConfig.connectionString}`);
 });
 
 const addTables = () => {
@@ -35,22 +35,32 @@ const addTables = () => {
       )`;
   pool.query(queryText)
     .then((res) => {
-      console.log("table created successfully" + res);
+      // console.log("table created successfully" + res);
     })
     .catch((err) => {
-      console.log("table creation failed" + err);
+      // console.log("table creation failed" + err);
       pool.end();
     });
+};
+
+const truncateTables = () =>{
+  pool.query('TRUNCATE TABLE users CASCADE',
+  (err) => {
+    if (err) {
+      //  console.log(err);
+       pool.end();
+    }
+  });
 };
 
 const dropTables = () => {
   const queryText = 'DROP TABLE IF EXISTS users';
   pool.query(queryText)
     .then((res) => {
-      console.log("table dropped successfully" + res);
+      // console.log("table dropped successfully" + res);
     })
     .catch((err) => {
-      console.log("table drop failed" + err);
+      // console.log("table drop failed" + err);
       pool.end();
     });
 };
@@ -58,6 +68,7 @@ const dropTables = () => {
 module.exports = {
   addTables,
   dropTables,
+  truncateTables,
   pool,
   env_setup
 };
