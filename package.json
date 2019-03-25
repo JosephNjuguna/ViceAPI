@@ -4,7 +4,7 @@
   "description": "postgresql api ",
   "main": "app.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --watch",
     "start": "node_modules/.bin/nodemon app.js"
   },
   "author": "JosephNjuguna",
