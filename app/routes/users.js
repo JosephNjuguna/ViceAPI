@@ -1,6 +1,7 @@
 const express = require('express');
 const controllers = require('../controllers/users');
 const validate  = require('../middleware/validations');
+const { checkUser, checkAdmin } = require('../middleware/checkauthentication');
 const router = express.Router();
 
 router.get(
@@ -18,7 +19,13 @@ router.post(
     controllers.login
 );
 router.get(
+    '/user',
+    checkUser,
+    controllers.allUsers
+);
+router.get(
     '/users',
+    checkAdmin,
     controllers.allUsers
 );
 

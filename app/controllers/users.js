@@ -3,6 +3,19 @@ const {
   pool
 } = require('../db/db');
 
+const {Token} = require('../helpers/jwt');
+
+
+var m  = new Date();
+var dateString =
+m.getFullYear() + "/" +
+("0" + (m.getMonth() + 1)).slice(-2) + "/" +
+("0" + m.getDate()).slice(-2) + " " +
+("0" + m.getHours()).slice(-2) + ":" +
+("0" + m.getMinutes()).slice(-2) + ":" +
+("0" + m.getSeconds()).slice(-2);
+
+
 function welcome(req, res, next) {
   const message = [200, "welcome to the api", true];
   return res.status(message[0]).json({
@@ -17,12 +30,14 @@ function signup(req, res) {
     return user_id
   };
 
+
   const user = {
     user_id: uniqueId(),
     username: req.body.name,
     email: req.body.email,
-    password: req.body.password
-  };
+    password: req.body.password,
+    signedup_on : dateString
+};
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
@@ -31,8 +46,8 @@ function signup(req, res) {
       });
     } else {
       if (dbRes.rows[0] == undefined) {
-        pool.query('INSERT INTO users(userid, email, password, username) values($1, $2, $3, $4)',
-          [user.user_id, user.email, user.password, user.username], (errorRes) => {
+        pool.query('INSERT INTO users(userid, username, email, password,  created_date) values($1, $2, $3, $4, $5)',
+          [user.user_id, user.username, user.email, user.password, user.signedup_on ], (errorRes) => {
 
             if (errorRes) {
               const replyServer = {
@@ -46,7 +61,8 @@ function signup(req, res) {
               const replyServer = {
                 status: '201',
                 message: 'User created',
-                description: 'sign up success'
+                description: 'sign up success',
+                signedup_on: user.signedup_on
               };
               return res.status(201).json({
                 "message": replyServer
@@ -78,9 +94,22 @@ function login(req, res, login) {
         });
       } else {
         if (login) {
-          return res.status(200).json({
-            "user": "successful login"
+
+          token = Token.generateToken({
+            email: user.email,
+            password : user.password
           });
+
+          const reply = {
+            "logged in at": dateString,
+            user: user.email,
+            authtoken : token,
+          };
+
+          return res.status(200).json({
+            "user": reply
+          });
+
         }
       }
     }
