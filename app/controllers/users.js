@@ -5,6 +5,17 @@ const {
 
 const {Token} = require('../helpers/jwt');
 
+
+var m  = new Date();
+var dateString =
+m.getFullYear() + "/" +
+("0" + (m.getMonth() + 1)).slice(-2) + "/" +
+("0" + m.getDate()).slice(-2) + " " +
+("0" + m.getHours()).slice(-2) + ":" +
+("0" + m.getMinutes()).slice(-2) + ":" +
+("0" + m.getSeconds()).slice(-2);
+
+
 function welcome(req, res, next) {
   const message = [200, "welcome to the api", true];
   return res.status(message[0]).json({
@@ -19,12 +30,13 @@ function signup(req, res) {
     return user_id
   };
 
+
   const user = {
     user_id: uniqueId(),
     username: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    signedup_on : new Date()
+    signedup_on : dateString
 };
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
@@ -49,7 +61,8 @@ function signup(req, res) {
               const replyServer = {
                 status: '201',
                 message: 'User created',
-                description: 'sign up success'
+                description: 'sign up success',
+                signedup_on: user.signedup_on
               };
               return res.status(201).json({
                 "message": replyServer
@@ -88,7 +101,7 @@ function login(req, res, login) {
           });
 
           const reply = {
-            "logged in at": new Date(),
+            "logged in at": dateString,
             user: user.email,
             authtoken : token,
           };

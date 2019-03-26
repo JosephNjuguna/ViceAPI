@@ -31,7 +31,7 @@ const addTables = () => {
         username VARCHAR(128) NOT NULL,
         email VARCHAR(128) NOT NULL,
         password VARCHAR(100)  NOT NULL,
-        created_date TIMESTAMP
+        created_date VARCHAR(100)  NOT NULL
       )`;
   pool.query(queryText)
     .then((res) => {
