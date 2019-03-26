@@ -23,8 +23,9 @@ function signup(req, res) {
     user_id: uniqueId(),
     username: req.body.name,
     email: req.body.email,
-    password: req.body.password
-  };
+    password: req.body.password,
+    signedup_on : new Date()
+};
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
@@ -33,8 +34,8 @@ function signup(req, res) {
       });
     } else {
       if (dbRes.rows[0] == undefined) {
-        pool.query('INSERT INTO users(userid, email, password, username) values($1, $2, $3, $4)',
-          [user.user_id, user.email, user.password, user.username], (errorRes) => {
+        pool.query('INSERT INTO users(userid, username, email, password,  created_date) values($1, $2, $3, $4, $5)',
+          [user.user_id, user.username, user.email, user.password, user.signedup_on ], (errorRes) => {
 
             if (errorRes) {
               const replyServer = {
@@ -87,7 +88,7 @@ function login(req, res, login) {
           });
 
           const reply = {
-            "logged in at": "1/1/2019",
+            "logged in at": new Date(),
             user: user.email,
             authtoken : token,
           };
