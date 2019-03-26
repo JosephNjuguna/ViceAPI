@@ -7,10 +7,23 @@ class Validations {
             const{ name, email, password } = req.body;
 
             let re;
-            if(name === ''|| email == "" || password ===""){
-                message = "Ensure all fields are filled";
+            // if(name === ''|| email == "" || password ===""){
+            //     message = "Ensure all fields are filled";
+            //     return reqResponses.handleError(message, 400, res);
+            // }
+            if(name == ''){
+                message= "username field empty";
                 return reqResponses.handleError(message, 400, res);
             }
+            if(email == ''){
+                message= "email field empty";
+                return reqResponses.handleError(message, 400, res);
+            }
+            if(password == ''){
+                message= "password field empty";
+                return reqResponses.handleError(message, 400, res);
+            }
+
             if (name) {
                 re = /[a-zA-Z]{3,}_*[0-9_]*[a-zA-Z]*_*/;
                 message = "user validation failed";

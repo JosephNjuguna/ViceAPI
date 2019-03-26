@@ -30,7 +30,6 @@ function signup(req, res) {
     return user_id
   };
 
-
   const user = {
     user_id: uniqueId(),
     username: req.body.name,
@@ -52,26 +51,27 @@ function signup(req, res) {
             if (errorRes) {
               const replyServer = {
                 status: '500',
-                message: 'Internal Server Error',
+                success:false,
+                message: 'Sign Up failed. Try again',
                 description: 'Could not create user'
               };
-              return res.status(500).send(replyServer);
-
-            } else {
-              const replyServer = {
-                status: '201',
-                message: 'User created',
-                description: 'sign up success',
-                signedup_on: user.signedup_on
-              };
-              return res.status(201).json({
+              return res.status(500).json({
                 "message": replyServer
               });
+            } else {
+              return res.status(201).json({
+                status: '201',
+                success: true,
+                message: 'User created',
+                description: 'sign up successful',
+                signedup_on: user.signedup_on
+              });
             }
-
           });
       } else {
-        return  res.status(409).json({"message": `this email :${user.email} already exist`});
+        return  res.status(409).json({
+          "message": `this email :${user.email} already exist`
+        });
       }
     }
   });
@@ -103,7 +103,7 @@ function login(req, res, login) {
           const reply = {
             "logged in at": dateString,
             user: user.email,
-            authtoken : token,
+            token : token,
           };
 
           return res.status(200).json({
@@ -123,7 +123,7 @@ function allUsers(req, res) {
         status: '500',
         message: 'Internal Server Error',
       };
-      res.status(500).send(replyServer);
+      return res.status(500).send(replyServer);
     } else {
       if (dbRes.rows[0] == undefined) {
         return res.json({
@@ -131,7 +131,9 @@ function allUsers(req, res) {
         });
       } else {
         return res.json({
-          "users": dbRes.rows
+          message : "all users",
+          success : true,
+          users: dbRes.rows
         });
       }
     }

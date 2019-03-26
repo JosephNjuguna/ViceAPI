@@ -8,45 +8,136 @@ const {
     addTables,
     dropTables,
     truncateTables,
-    env_setup
+    env_setup,
+    pool
 } = require('../db/db');
 
 // dot env configuration
 dotenv.config();
 env_setup(process.env.test_environment);
 
-// generate user token 
-const userToken = jwt.sign({
-    email: 'test1@mail.com',
-    userId: 2
-}, process.env.JWT_PUBLIC_KEY, {
-    expiresIn: '6h',
+let userAuth = {};
+let adminAuth = {};
+
+var m = new Date();
+var datestring = m.getFullYear() + "/" +
+    ("0" + (m.getMonth() + 1)).slice(-2) + "/" +
+    ("0" + m.getDate()).slice(-2) + " " +
+    ("0" + m.getHours()).slice(-2) + ":" +
+    ("0" + m.getMinutes()).slice(-2) + ":" +
+    ("0" + m.getSeconds()).slice(-2);
+
+const normalUser = {
+    userid: '123user',
+    username: "joe",
+    email: "test1@mail.com",
+    password: 'qwerQ@qwerre123',
+    signup_on: datestring
+};
+
+const adminUser = {
+    userid: '123admin',
+    username: "admin",
+    email: "admin123@mail.com",
+    password: 'qwerQ@qwerre123',
+    signup_on: datestring
+};
+// before each request, create a user and log them in
+beforeAll(async () => {
+    // await dropTables();
+    await addTables();
+});
+// before each request, create a user and log them in
+beforeEach(async () => {
+    // add normal user
+    await pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
+        normalUser.userid, normalUser.username, normalUser.email, normalUser.password, normalUser.signup_on
+    ]);
+
+    //  add admin user
+    await pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
+        adminUser.userid, adminUser.username, adminUser.email, adminUser.password, adminUser.signup_on
+    ]);
+
+    const userLogin = await request(app)
+        .post("/login")
+        .send({
+            email: "test1@mail.com",
+            password: 'qwerQ@qwerre123'
+        });
+    userAuth.token = userLogin.body.user.token;
+
+    const adminLogin = await request(app)
+        .post("/login")
+        .send({
+            email: "admin123@mail.com",
+            password: 'qwerQ@qwerre123'
+        });
+    adminAuth.token = adminLogin.body.user.token;
+    adminAuth.adminEmail = jwt.decode(adminAuth.token).email;
 });
 
-// generate admin token
-const adminToken = jwt.sign({
-    email: 'admin123@mail.com',
-    userId: 1
-}, process.env.JWT_PUBLIC_KEY, {
-    expiresIn: '6h',
+afterAll(async () => {
+    await dropTables();
 });
 
-beforeEach(() => {
-    addTables();
-    dropTables();
-    truncateTables();
-});
+describe('/POST user sign up', () => {
+    it('should fail with empty username field', (done) => {
+        request(app)
+            .post('/signup')
+            .send(user.user1)
+            .expect(400)
+            .end((err, res) => {
+                expect(res.body.message).toEqual("username field empty");
+                if (err) return done();
+                done();
+            });
+    });
 
-describe('test user sign up', () => {
+    it('should fail with empty email field', (done) => {
+        request(app)
+            .post('/signup')
+            .send(user.user2)
+            .expect(400)
+            .end((err, res) => {
+                expect(res.body.message).toEqual("email field empty");
+                if (err) return done();
+                done();
+            });
+    });
+    
+    it('should fail with empty password field', (done) => {
+        request(app)
+            .post('/signup')
+            .send(user.user3)
+            .expect(400)
+            .end((err, res) => {
+                expect(res.body.message).toEqual("password field empty");
+                if (err) return done();
+                done();
+            });
+    });
 
     it('user sign up', (done) => {
         request(app)
             .post('/signup')
             .send(user.user4)
-            .expect(400)
+            .expect(201)
             .end((err, res) => {
-                // expect(res.body.success).toEqual(true);
+                // expect(res.body.message).toEqual('undefined');
                 expect(res.body.message).toEqual('User created');
+                if (err) return done();
+                done();
+            });
+    });
+
+    it('user email already exist', (done) => {
+        request(app)
+            .post('/signup')
+            .send(normalUser)
+            .expect(409)
+            .end((err, res) => {
+                expect(res.body.message).toEqual(`this email :${normalUser.email} already exist`);
                 if (err) return done();
                 done();
             });
@@ -54,6 +145,25 @@ describe('test user sign up', () => {
 
 });
 
-describe('test user log in', () => {
-    it('user log in', () => {});
+describe('/GET users', () =>{
+    it('should not  return all users if not admin',(done) =>{
+        request(app)
+            .get('/users')
+            .set('Authorization', `Bearer ${userAuth.token}`)
+            .end((err, res) => {
+                expect(res.body.message).toEqual("Access Denied! You are not allowed to access this route");
+                if (err) return done();
+                done();
+            });
+    });
+    it('should retun all users',(done) =>{
+        request(app)
+            .get('/users')
+            .set('Authorization', `Bearer ${adminAuth.token}`)
+            .end((err, res) => {
+                expect(res.body.success).toEqual(true);
+                if (err) return done();
+                done();
+            });
+    });
 });

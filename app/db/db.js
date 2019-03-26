@@ -38,7 +38,6 @@ const addTables = () => {
       return res
     })
     .catch((err) => {
-      pool.end();
       return err;
     });
 };
