@@ -21,7 +21,7 @@ router.post(
 router.get(
     '/user',
     checkUser,
-    controllers.allUsers
+    controllers.userProfile
 );
 router.get(
     '/users',

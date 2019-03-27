@@ -39,7 +39,9 @@ function checkAdmin(req, res, next){
       message: 'Auth failed',
       error: e,
     });
+    console.log(e);
+    
   }
-};
+}
 
 module.exports= {checkUser, checkAdmin};

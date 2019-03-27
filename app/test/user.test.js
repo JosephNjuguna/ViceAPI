@@ -65,15 +65,16 @@ beforeEach(async () => {
             email: "test1@mail.com",
             password: 'qwerQ@qwerre123'
         });
-    userAuth.token = userLogin.body.user.token;
-
+    userAuth.token = userLogin.body.token;
+    userAuth.userEmail = jwt.decode(userAuth.token).email
+    
     const adminLogin = await request(app)
         .post("/login")
         .send({
             email: "admin123@mail.com",
             password: 'qwerQ@qwerre123'
         });
-    adminAuth.token = adminLogin.body.user.token;
+    adminAuth.token = adminLogin.body.token;
     adminAuth.adminEmail = jwt.decode(adminAuth.token).email;
 });
 
@@ -105,7 +106,7 @@ describe('/POST user sign up', () => {
                 done();
             });
     });
-    
+
     it('should fail with empty password field', (done) => {
         request(app)
             .post('/signup')
@@ -144,9 +145,20 @@ describe('/POST user sign up', () => {
     });
 
 });
-
-describe('/GET users', () =>{
-    it('should not  return all users if not admin',(done) =>{
+describe('/GET one user', () =>{
+    it('should return one user detail', (done)=>{
+        request(app)
+        .get('/user')
+        .set('authorization',`Bearer ${userAuth.token}` )
+        .end((err, res) =>{
+            expect(res.body.message).toEqual("user profile");
+            if(err) return done();
+            done();
+        });
+    });
+})
+describe('/GET all users', () => {
+    it('should not  return all users if not admin', (done) => {
         request(app)
             .get('/users')
             .set('Authorization', `Bearer ${userAuth.token}`)
@@ -156,7 +168,7 @@ describe('/GET users', () =>{
                 done();
             });
     });
-    it('should retun all users',(done) =>{
+    it('should retun all users', (done) => {
         request(app)
             .get('/users')
             .set('Authorization', `Bearer ${adminAuth.token}`)

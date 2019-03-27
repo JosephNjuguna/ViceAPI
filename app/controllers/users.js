@@ -99,17 +99,12 @@ function login(req, res, login) {
             email: user.email,
             password : user.password
           });
-
-          const reply = {
-            "logged in at": dateString,
+          return res.status(200).json({
+            loggedin_at : dateString,
             user: user.email,
             token : token,
-          };
-
-          return res.status(200).json({
-            "user": reply
+            message : "successful log in"
           });
-
         }
       }
     }
@@ -140,9 +135,14 @@ function allUsers(req, res) {
   });
 }
 
+function userProfile(req, res){
+  return res.json({message: "user profile"});
+}
+
 module.exports = {
   welcome,
   signup,
   login,
-  allUsers
+  allUsers,
+  userProfile
 };
