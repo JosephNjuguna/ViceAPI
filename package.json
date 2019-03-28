@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --watch",
     "coveralls": "jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
-    "start": "node_modules/.bin/nodemon app.js"
+    "start": "node_modules/.bin/nodemon server.js"
   },
   "author": "JosephNjuguna",
   "license": "ISC",

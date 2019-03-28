@@ -1,6 +1,8 @@
 language: node_js
+
 node_js: 
   - "stable"
+  
 cache:
   directories:
     - "node_modules"
@@ -21,15 +23,14 @@ jobs:
 
 
 before_script:
-  - npm install
+  # - npm install
   - psql -c 'create database travis_ci_test;' -U postgres
 
 script:
-  - node server.js
   - npm test
 
 after_script:
-  - npm run coveralls 
+  - npm coveralls 
 
 notifications:
   email: false
