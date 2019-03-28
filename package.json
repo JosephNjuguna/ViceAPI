@@ -17,15 +17,18 @@
     "express": "^4.16.4",
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^1.18.10",
-    "pg": "^7.9.0",
-    "supertest": "^4.0.2"
+    "pg": "^7.9.0"
   },
   "devDependencies": {
     "coveralls": "^3.0.3",
-    "jest": "^24.5.0"
+    "jest": "^24.5.0",
+    "mocha": "^6.0.2",
+    "supertest": "^4.0.2"
   },
   "jest": {
     "collectCoverage": true,
-    "collectCoverageFrom": ["src/**/*.{js,jsx}"]
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}"
+    ]
   }
 }
