@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "jest --watch",
-    "start": "node_modules/.bin/nodemon server.js"
+    "coveralls": "jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
+    "start": "node_modules/.bin/nodemon app.js"
   },
   "author": "JosephNjuguna",
   "license": "ISC",
@@ -20,6 +21,11 @@
     "supertest": "^4.0.2"
   },
   "devDependencies": {
+    "coveralls": "^3.0.3",
     "jest": "^24.5.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": ["src/**/*.{js,jsx}"]
   }
 }
