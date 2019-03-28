@@ -3,17 +3,19 @@ const {
   pool
 } = require('../db/db');
 
-const {Token} = require('../helpers/jwt');
+const {
+  Token
+} = require('../helpers/jwt');
 
 
-var m  = new Date();
+var m = new Date();
 var dateString =
-m.getFullYear() + "/" +
-("0" + (m.getMonth() + 1)).slice(-2) + "/" +
-("0" + m.getDate()).slice(-2) + " " +
-("0" + m.getHours()).slice(-2) + ":" +
-("0" + m.getMinutes()).slice(-2) + ":" +
-("0" + m.getSeconds()).slice(-2);
+  m.getFullYear() + "/" +
+  ("0" + (m.getMonth() + 1)).slice(-2) + "/" +
+  ("0" + m.getDate()).slice(-2) + " " +
+  ("0" + m.getHours()).slice(-2) + ":" +
+  ("0" + m.getMinutes()).slice(-2) + ":" +
+  ("0" + m.getSeconds()).slice(-2);
 
 
 function welcome(req, res, next) {
@@ -30,48 +32,48 @@ function signup(req, res) {
     return user_id
   };
 
-
   const user = {
     user_id: uniqueId(),
     username: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    signedup_on : dateString
-};
+    signedup_on: dateString
+  };
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
-      return res.json({
+      return res.status(500).json({
         "message": "Internal server error"
       });
     } else {
       if (dbRes.rows[0] == undefined) {
         pool.query('INSERT INTO users(userid, username, email, password,  created_date) values($1, $2, $3, $4, $5)',
-          [user.user_id, user.username, user.email, user.password, user.signedup_on ], (errorRes) => {
+          [user.user_id, user.username, user.email, user.password, user.signedup_on], (errorRes) => {
 
             if (errorRes) {
               const replyServer = {
                 status: '500',
-                message: 'Internal Server Error',
+                success: false,
+                message: 'Sign Up failed. Try again',
                 description: 'Could not create user'
               };
-              return res.status(500).send(replyServer);
-
-            } else {
-              const replyServer = {
-                status: '201',
-                message: 'User created',
-                description: 'sign up success',
-                signedup_on: user.signedup_on
-              };
-              return res.status(201).json({
+              return res.status(500).json({
                 "message": replyServer
               });
+            } else {
+              return res.status(201).json({
+                status: '201',
+                success: true,
+                message: 'User created',
+                description: 'sign up successful',
+                signedup_on: user.signedup_on
+              });
             }
-
           });
       } else {
-        return  res.status(409).json({"message": `this email :${user.email} already exist`});
+        return res.status(409).json({
+          "message": `this email :${user.email} already exist`
+        });
       }
     }
   });
@@ -79,12 +81,12 @@ function signup(req, res) {
 
 function login(req, res, login) {
   const user = {
-    email : req.body.email,
+    email: req.body.email,
     password: req.body.password
   };
-  pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
+  pool.query('SELECT email,userid,id FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
-      return res.json({
+      return res.status(500).json({
         "message": "Internal server error"
       });
     } else {
@@ -94,22 +96,15 @@ function login(req, res, login) {
         });
       } else {
         if (login) {
-
           token = Token.generateToken({
-            email: user.email,
-            password : user.password
+            user: dbRes.rows[0]
           });
-
-          const reply = {
-            "logged in at": dateString,
-            user: user.email,
-            authtoken : token,
-          };
-
           return res.status(200).json({
-            "user": reply
+            loggedin_at: dateString,
+            user: user.email,
+            token: token,
+            message: "successful log in"
           });
-
         }
       }
     }
@@ -123,16 +118,44 @@ function allUsers(req, res) {
         status: '500',
         message: 'Internal Server Error',
       };
-      res.status(500).send(replyServer);
+      return res.status(500).send(replyServer);
     } else {
       if (dbRes.rows[0] == undefined) {
-        return res.json({
+        return res.status(404).json({
           "message": "no users found"
         });
       } else {
-        return res.json({
-          "users": dbRes.rows
+        return res.status(200).json({
+          message: "all users",
+          success: true,
+          users: dbRes.rows
         });
+      }
+    }
+  });
+}
+
+function userProfile(req, res) {
+  pool.query('SELECT * FROM users WHERE id = ($1)', [req.params.user_id], (error, dbRes) => {
+    if (error) {
+      return res.status(500).json({
+        "message": "Internal server error"
+      });
+    } else {
+      if (dbRes.rows[0] == undefined || dbRes.rows[0] == null) {
+        return res.status(404).json({
+          "message": "ID not available"
+        });
+      } else {
+        if (login) {
+          token = Token.generateToken({
+            user: dbRes.rows[0]
+          });
+          return res.status(200).json({
+            message: `welcome`
+            // message: `welcome ${dbRes.rows[0].username}`
+          });
+        }
       }
     }
   });
@@ -142,5 +165,6 @@ module.exports = {
   welcome,
   signup,
   login,
-  allUsers
+  allUsers,
+  userProfile
 };

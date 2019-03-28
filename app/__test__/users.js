@@ -16,8 +16,8 @@ const users = {
     },
     user4 :{
         name : 'Jose',
-        email: 'test1@mail.com',
-        password:'Test123'
+        email: 'test2@mail.com',
+        password:'qwerQ@qwerre123'
     }
 }
 

@@ -17,10 +17,10 @@ const env_setup = (env) => {
 };
 
 const pool = new Pool(dbConfig);
-
-pool.on('connect', () => {
-  // console.log(`connected to the database ${dbConfig.connectionString}`);
-});
+pool.connect();
+// pool.on('connect', () => {
+//   console.log(`connected to the database ${dbConfig.connectionString}`);
+// });
 
 const addTables = () => {
   const queryText =
@@ -38,7 +38,6 @@ const addTables = () => {
       return res
     })
     .catch((err) => {
-      pool.end();
       return err;
     });
 };

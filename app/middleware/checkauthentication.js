@@ -20,14 +20,14 @@ function checkUser(req, res, next){
       error: e,
     });
   }
-};
+}
 //  check if user is admin
 function checkAdmin(req, res, next){
   try {
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_PUBLIC_KEY);
     req.userData = decoded;
-    if(req.userData.email == "admin123@mail.com"){
+    if(req.userData.user.email == "admin123@mail.com"){
       next();
     }else{
       return res.status(401).json({
@@ -39,7 +39,8 @@ function checkAdmin(req, res, next){
       message: 'Auth failed',
       error: e,
     });
+    console.log(e);
   }
-};
+}
 
 module.exports= {checkUser, checkAdmin};
