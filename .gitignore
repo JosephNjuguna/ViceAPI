@@ -66,5 +66,4 @@ typings/
 # personal notes
 /misc
 /UI
-*.yml
 .babelrc
