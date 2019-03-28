@@ -23,6 +23,7 @@ jobs:
 
 
 before_script:
+  - npm install
   - psql -c 'create database users;' -U postgres
 
 script:
