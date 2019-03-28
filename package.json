@@ -28,7 +28,7 @@
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}"
+      "app/**/*.{js,jsx}"
     ]
   }
 }

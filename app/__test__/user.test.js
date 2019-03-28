@@ -67,8 +67,8 @@ beforeEach(async () => {
             password: 'qwerQ@qwerre123'
         });
     userAuth.token = userLogin.body.token;
-    userAuth.userEmail = jwt.decode(userAuth.token).user.email;
-    userAuth.userid = jwt.decode(userAuth.token).user.id;
+    userAuth.userEmail = jwt.decode(userAuth.token).email;
+    userAuth.userid = jwt.decode(userAuth.token).id;
 
     const adminLogin = await request(app)
         .post("/login")
@@ -77,8 +77,8 @@ beforeEach(async () => {
             password: 'qwerQ@qwerre123'
         });
     adminAuth.token = adminLogin.body.token;
-    adminAuth.adminEmail = jwt.decode(adminAuth.token).user.email;
-    adminAuth.adminid = jwt.decode(adminAuth.token).user.id;
+    adminAuth.adminEmail = jwt.decode(adminAuth.token).email;
+    adminAuth.adminid = jwt.decode(adminAuth.token).id;
 
 });
 //  delete from the users table

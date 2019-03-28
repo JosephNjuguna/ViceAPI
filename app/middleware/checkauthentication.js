@@ -27,7 +27,7 @@ function checkAdmin(req, res, next){
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_PUBLIC_KEY);
     req.userData = decoded;
-    if(req.userData.user.email == "admin123@mail.com"){
+    if(req.userData.email == "admin123@mail.com"){
       next();
     }else{
       return res.status(401).json({
