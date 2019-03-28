@@ -17,7 +17,7 @@ addons:
 
 before_script:
   - npm install
-  - psql -c 'create database users;' -U postgres
+  - psql -c 'create database viceapi_test;' -U postgres
 
 script:
   - npm run test
