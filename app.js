@@ -4,13 +4,12 @@ const routes = require('./app/routes/users');
 
 const {
   addTables,
-  pool,
   env_setup
 } = require('./app/db/db');
 
 require('dotenv').config();
 addTables();
-env_setup(process.env.environment);
+env_setup(process.env.dev_environment);
 
 const app = express();
 app.use(bodyParser.json());

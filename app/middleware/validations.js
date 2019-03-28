@@ -7,10 +7,7 @@ class Validations {
             const{ name, email, password } = req.body;
 
             let re;
-            // if(name === ''|| email == "" || password ===""){
-            //     message = "Ensure all fields are filled";
-            //     return reqResponses.handleError(message, 400, res);
-            // }
+
             if(name == ''){
                 message= "username field empty";
                 return reqResponses.handleError(message, 400, res);

@@ -19,7 +19,7 @@ router.post(
     controllers.login
 );
 router.get(
-    '/user',
+    '/user/:user_id',
     checkUser,
     controllers.userProfile
 );

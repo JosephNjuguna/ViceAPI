@@ -42,11 +42,12 @@ const adminUser = {
     password: 'qwerQ@qwerre123',
     signup_on: datestring
 };
+
 // before each request, create a user and log them in
 beforeAll(async () => {
-    // await dropTables();
     await addTables();
 });
+
 // before each request, create a user and log them in
 beforeEach(async () => {
     // add normal user
@@ -66,8 +67,9 @@ beforeEach(async () => {
             password: 'qwerQ@qwerre123'
         });
     userAuth.token = userLogin.body.token;
-    userAuth.userEmail = jwt.decode(userAuth.token).email
-    
+    userAuth.userEmail = jwt.decode(userAuth.token).user.email;
+    userAuth.userid = jwt.decode(userAuth.token).user.id;
+
     const adminLogin = await request(app)
         .post("/login")
         .send({
@@ -75,14 +77,22 @@ beforeEach(async () => {
             password: 'qwerQ@qwerre123'
         });
     adminAuth.token = adminLogin.body.token;
-    adminAuth.adminEmail = jwt.decode(adminAuth.token).email;
+    adminAuth.adminEmail = jwt.decode(adminAuth.token).user.email;
+    adminAuth.adminid = jwt.decode(adminAuth.token).user.id;
+
+});
+//  delete from the users table
+afterEach(async () => {
+    await pool.query("DELETE FROM users");
 });
 
+// after all drop the tables for the next test
 afterAll(async () => {
     await dropTables();
 });
 
 describe('/POST user sign up', () => {
+
     it('should fail with empty username field', (done) => {
         request(app)
             .post('/signup')
@@ -145,37 +155,60 @@ describe('/POST user sign up', () => {
     });
 
 });
-describe('/GET one user', () =>{
-    it('should return one user detail', (done)=>{
+
+describe('/GET one user', () => {
+
+    const userid = 150;
+    it('should not return a user when ID is invalid', (done) => {
         request(app)
-        .get('/user')
-        .set('authorization',`Bearer ${userAuth.token}` )
-        .end((err, res) =>{
-            expect(res.body.message).toEqual("user profile");
-            if(err) return done();
-            done();
-        });
+            .get(`/user/${userid}`)
+            .set('authorization', `Bearer ${userAuth.token}`)
+            .expect(404)
+            .end((err, res) => {
+                expect(res.body.message).toEqual("ID not available");
+                if (err) return done();
+                done();
+            });
     });
-})
+
+    it('should return one user detail', (done) => {
+        request(app)
+            .get(`/user/${userAuth.userid}`)
+            .set('authorization', `Bearer ${userAuth.token}`)
+            .expect(400)
+            .end((err, res) => {
+                expect(res.body.message).toEqual(`welcome`);
+                if (err) return done();
+                done();
+            });
+    });
+
+});
+
 describe('/GET all users', () => {
+
     it('should not  return all users if not admin', (done) => {
         request(app)
             .get('/users')
             .set('Authorization', `Bearer ${userAuth.token}`)
+            .expect(401)
             .end((err, res) => {
                 expect(res.body.message).toEqual("Access Denied! You are not allowed to access this route");
                 if (err) return done();
                 done();
             });
     });
+
     it('should retun all users', (done) => {
         request(app)
             .get('/users')
             .set('Authorization', `Bearer ${adminAuth.token}`)
+            .expect(200)
             .end((err, res) => {
                 expect(res.body.success).toEqual(true);
                 if (err) return done();
                 done();
             });
     });
+
 });
