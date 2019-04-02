@@ -11,7 +11,7 @@ function checkUser(req, res, next){
     // decode the token  for user data
     const decoded = jwt.verify(token, process.env.JWT_PUBLIC_KEY);
     // get user data
-    req.userData = decoded;
+    req.userData = decoded;  
     next();
   } catch (e) {
     res.status(401).json({

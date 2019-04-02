@@ -7,7 +7,8 @@ const dotenv = require('dotenv');
 const {
     addTables,
     dropTables,
-    createAdmin
+    createAdmin,
+    pool
 } = require('../db/db');
 // dot env configuration
 dotenv.config();
@@ -34,7 +35,6 @@ const normalUser = {
 // before each request, create a user and log them in
 beforeAll(async () => {
     await addTables();
-    await createAdmin();
 });
 
 // before each request, create a user and log them in
@@ -43,23 +43,24 @@ beforeEach(async () => {
     await pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
         normalUser.userid, normalUser.username, normalUser.email, normalUser.password, normalUser.signup_on
     ]);
+    createAdmin();
     const userLogin = await request(app)
         .post("/login")
         .send({
             email: "test1@mail.com",
             password: 'qwerQ@qwerre123'
         });
-    userAuth.token = userLogin.body.token;
+    userAuth.token = userLogin.body.token;    
     userAuth.userEmail = jwt.decode(userAuth.token).email;
-    userAuth.userid = jwt.decode(userAuth.token).id;
-
+    userAuth.user_id = jwt.decode(userAuth.token).userid;
+    
     const adminLogin = await request(app)
         .post("/login")
         .send({
             email: "admin123@mail.com",
             password: 'qwerQ@qwerre123'
         });
-    adminAuth.token = adminLogin.body.token;
+    adminAuth.token = adminLogin.body.token;    
     adminAuth.adminEmail = jwt.decode(adminAuth.token).email;
     adminAuth.adminid = jwt.decode(adminAuth.token).id;
 
@@ -182,7 +183,7 @@ describe('/GET all users', () => {
             });
     });
 
-    it('should retun all users', (done) => {
+    it('should return all users', (done) => {
         request(app)
             .get('/users')
             .set('Authorization', `Bearer ${adminAuth.token}`)
