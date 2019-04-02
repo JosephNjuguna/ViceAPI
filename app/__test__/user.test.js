@@ -1,4 +1,4 @@
-const user = require('./users');
+const user = require('./mockData');
 const request = require('supertest');
 const app = require('../../app');
 const jwt = require('jsonwebtoken');
@@ -7,14 +7,10 @@ const dotenv = require('dotenv');
 const {
     addTables,
     dropTables,
-    truncateTables,
-    env_setup,
-    pool
+    createAdmin
 } = require('../db/db');
-
 // dot env configuration
 dotenv.config();
-env_setup(process.env.test_environment);
 
 let userAuth = {};
 let adminAuth = {};
@@ -35,17 +31,10 @@ const normalUser = {
     signup_on: datestring
 };
 
-const adminUser = {
-    userid: '123admin',
-    username: "admin",
-    email: "admin123@mail.com",
-    password: 'qwerQ@qwerre123',
-    signup_on: datestring
-};
-
 // before each request, create a user and log them in
 beforeAll(async () => {
     await addTables();
+    await createAdmin();
 });
 
 // before each request, create a user and log them in
@@ -54,12 +43,6 @@ beforeEach(async () => {
     await pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
         normalUser.userid, normalUser.username, normalUser.email, normalUser.password, normalUser.signup_on
     ]);
-
-    //  add admin user
-    await pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
-        adminUser.userid, adminUser.username, adminUser.email, adminUser.password, adminUser.signup_on
-    ]);
-
     const userLogin = await request(app)
         .post("/login")
         .send({

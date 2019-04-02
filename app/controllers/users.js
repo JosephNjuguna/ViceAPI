@@ -42,6 +42,7 @@ function signup(req, res) {
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
+      console.log(error);
       return res.status(500).json({
         "message": "Internal server error"
       });
@@ -154,7 +155,6 @@ function userProfile(req, res) {
           });
           return res.status(200).json({
             message: `welcome`
-            // message: `welcome ${dbRes.rows[0].username}`
           });
         }
       }
