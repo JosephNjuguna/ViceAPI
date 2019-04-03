@@ -42,7 +42,6 @@ function signup(req, res) {
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
-      console.log(error);
       return res.status(500).json({
         "message": "Internal server error"
       });

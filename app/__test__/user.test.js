@@ -34,13 +34,13 @@ const normalUser = {
 
 // before each request, create a user and log them in
 beforeAll(async () => {
-    await addTables();
+    addTables();
 });
 
 // before each request, create a user and log them in
 beforeEach(async () => {
     // add normal user
-    await pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
+    pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
         normalUser.userid, normalUser.username, normalUser.email, normalUser.password, normalUser.signup_on
     ]);
     createAdmin();
@@ -67,12 +67,12 @@ beforeEach(async () => {
 });
 //  delete from the users table
 afterEach(async () => {
-    await pool.query("DELETE FROM users");
+    pool.query("DELETE FROM users");
 });
 
 // after all drop the tables for the next test
 afterAll(async () => {
-    await dropTables();
+    dropTables();
 });
 
 describe('/POST user sign up', () => {
