@@ -4,8 +4,10 @@
   "description": "postgresql api ",
   "main": "app.js",
   "scripts": {
-    "test": "jest --watch",
-    "start": "node_modules/.bin/nodemon server.js"
+    "test": "NODE_ENV=test jest --watch",
+    "coveralls": "jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
+    "start": "NODE_ENV=dev node_modules/.bin/nodemon server.js",
+    "dot_env": "node -r dotenv/config server.js"
   },
   "author": "JosephNjuguna",
   "license": "ISC",
@@ -15,11 +17,20 @@
     "dotenv": "^7.0.0",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.11",
     "nodemon": "^1.18.10",
-    "pg": "^7.9.0",
-    "supertest": "^4.0.2"
+    "pg": "^7.9.0"
   },
   "devDependencies": {
-    "jest": "^24.5.0"
+    "coveralls": "^3.0.3",
+    "jest": "^24.5.0",
+    "mocha": "^6.0.2",
+    "supertest": "^4.0.2"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "app/**/*.{js,jsx}"
+    ]
   }
 }

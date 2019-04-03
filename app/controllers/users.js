@@ -95,9 +95,10 @@ function login(req, res, login) {
           "message": "Invalid email or password"
         });
       } else {
-        if (login) {
+        if (login) {          
           token = Token.generateToken({
-            user: dbRes.rows[0]
+            email: dbRes.rows[0].email,
+            userid : dbRes.rows[0].id
           });
           return res.status(200).json({
             loggedin_at: dateString,
@@ -153,7 +154,6 @@ function userProfile(req, res) {
           });
           return res.status(200).json({
             message: `welcome`
-            // message: `welcome ${dbRes.rows[0].username}`
           });
         }
       }

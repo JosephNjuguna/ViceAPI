@@ -1,26 +1,15 @@
 const {
   Pool
 } = require('pg');
-const dotenv = require('dotenv');
-
-dotenv.config();
+const config = require('../../config/config');
+require('dotenv').config();
 const dbConfig = {
-  connectionString: process.env.DATABASE_URL
-};
-
-const env_setup = (env) => {
-  if (env == "development") {
-    dbConfig['connectionString'] = process.env.DATABASE_URL;
-  } else if (env == "test") {
-    dbConfig['connectionString'] = process.env.DATABASE_TEST_URL;
-  }
+  connectionString: config.db
 };
 
 const pool = new Pool(dbConfig);
-pool.connect();
-// pool.on('connect', () => {
-//   console.log(`connected to the database ${dbConfig.connectionString}`);
-// });
+
+pool.on('connect', (err) => {});
 
 const addTables = () => {
   const queryText =
@@ -35,21 +24,16 @@ const addTables = () => {
       )`;
   pool.query(queryText)
     .then((res) => {
-      return res
+      return res;
     })
-    .catch((err) => {
-      return err;
-    });
+    .catch((err) => {});
 };
 
-const truncateTables = () =>{
+const truncateTables = () => {
   pool.query('TRUNCATE TABLE users CASCADE',
-  (err) => {
-    if (err) {
-      //  console.log(err);
-       pool.end();
-    }
-  });
+    (err) => {
+      if (err) {}
+    });
 };
 
 const dropTables = () => {
@@ -59,15 +43,35 @@ const dropTables = () => {
       return res
     })
     .catch((err) => {
-      pool.end();
       return err;
     });
+};
+
+const createAdmin = () => {
+  var m = new Date();
+  var datestring = m.getFullYear() + "/" +
+    ("0" + (m.getMonth() + 1)).slice(-2) + "/" +
+    ("0" + m.getDate()).slice(-2) + " " +
+    ("0" + m.getHours()).slice(-2) + ":" +
+    ("0" + m.getMinutes()).slice(-2) + ":" +
+    ("0" + m.getSeconds()).slice(-2);
+  
+  const adminUser = {
+    userid: '123admin',
+    username: "admin",
+    email: "admin123@mail.com",
+    password: 'qwerQ@qwerre123',
+    signup_on: datestring
+  };
+  pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
+    adminUser.userid, adminUser.username, adminUser.email, adminUser.password, adminUser.signup_on
+  ]);
 };
 
 module.exports = {
   addTables,
   dropTables,
   truncateTables,
-  pool,
-  env_setup
+  createAdmin,
+  pool
 };

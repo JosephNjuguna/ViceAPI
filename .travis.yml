@@ -1,0 +1,29 @@
+language: node_js
+
+node_js: 
+  - "stable"
+  
+cache:
+  directories:
+    - "node_modules"
+
+services:
+ - postgresql
+
+addons:
+    code_climate:
+        repo_token:
+          secure: "fMIylcDv8ywxPbvoMF6eJ3MBIh91yJ+S6Vf78K+lxYgTMP7jExfRILYYBLLFwTbPix3OYzkAJ07LpIOVClj+noYPy84EHuMAQGqK8WZZVMj7zChHu+LWqInWuKkMpGcl9VwvfrX3mLplR1HlWZ6e+WU98w1cgOuoGaSLLF6L7Q1zp0/8Km7FWsG3/p+Zp9w9rJSWyOFxc92V7Y7DbZ3CF+TrLT6m7CIv/korjQzWXV3qyCfKoj35Yz5X1UaZwV0ivK6xzLvzvS7g/C6tHtfB+8LkmO9ceYLqNCa12+TWTjvxlOS45jLm3d+CUaRuRNF91Q5KPxQTOs+Cvyqb8kx0aFxj7qoQOkyXbhvo7nlknLK1cd93lN3bpsvDeM0v1CD2mHfGz4XEDHyhv5NsZ4CFKn9ocFdQFyqyGug6dAHBEWYQlIiOpNUoIvNSCEbe+/eh4dKjrWYx3W7xGTW9mky+/IONli3uQ6S6B+EaCjf/rH3YK9XwtjK85oE7cVaBMa5ypnF466XUCs4eJ2CjWbvKDybVWfDizNqQntdQFZIY7rt+g+UYiQkskTeBEuPc+jENtcfWvrVw6zn/SFoRFqmSZaMKWwaS/oKpD0kTbr1Zg0RM2IHdZDBlpoZs9l8lwvLZ2HIH5j2XpdsPkJWFWZelY4sSzyXIxCUyiiXpgGCws4A="
+
+before_script:
+  - npm install
+  - psql -c 'create database viceapi_test;' -U postgres
+
+script:
+  - npm run test
+
+after_script:
+  - npm run coveralls 
+
+notifications:
+  email: false
