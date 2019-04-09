@@ -2,10 +2,6 @@ language: node_js
 node_js:
   - "stable"
 
-env:
-  - DATABASE_TEST_URL=localhost://alan:alan@127.0.0.1:5432/viceapi_test
-
-
 addons:
     code_climate:
         repo_token:
