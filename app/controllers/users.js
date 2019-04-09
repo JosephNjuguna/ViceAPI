@@ -7,6 +7,10 @@ const {
   Token
 } = require('../helpers/jwt');
 
+const uniqueId = () => {
+  var user_id = 'id-' + Math.random().toString(36).substr(2, 16);
+  return user_id
+};
 
 var m = new Date();
 var dateString =
@@ -16,7 +20,7 @@ var dateString =
   ("0" + m.getHours()).slice(-2) + ":" +
   ("0" + m.getMinutes()).slice(-2) + ":" +
   ("0" + m.getSeconds()).slice(-2);
-
+  
 
 function welcome(req, res, next) {
   const message = [200, "welcome to the api", true];
@@ -27,18 +31,13 @@ function welcome(req, res, next) {
 }
 
 function signup(req, res) {
-  const uniqueId = () => {
-    var user_id = 'id-' + Math.random().toString(36).substr(2, 16);
-    return user_id
-  };
-
   const user = {
-    user_id: uniqueId(),
+    user_id : uniqueId(),
     username: req.body.name,
     email: req.body.email,
     password: req.body.password,
     signedup_on: dateString
-  };
+  };  
 
   pool.query('SELECT email FROM users WHERE email = ($1)', [user.email], (error, dbRes) => {
     if (error) {
@@ -47,20 +46,22 @@ function signup(req, res) {
       });
     } else {
       if (dbRes.rows[0] == undefined) {
-        pool.query('INSERT INTO users(userid, username, email, password,  created_date) values($1, $2, $3, $4, $5)',
+        pool.query('INSERT INTO users (userid, username, email, password,  created_date) values($1, $2, $3, $4, $5)',
           [user.user_id, user.username, user.email, user.password, user.signedup_on], (errorRes) => {
 
-            if (errorRes) {
+            if (errorRes) {              
               const replyServer = {
                 status: '500',
                 success: false,
                 message: 'Sign Up failed. Try again',
                 description: 'Could not create user'
               };
+              
               return res.status(500).json({
                 "message": replyServer
               });
             } else {
+              
               return res.status(201).json({
                 status: '201',
                 success: true,
@@ -95,10 +96,10 @@ function login(req, res, login) {
           "message": "Invalid email or password"
         });
       } else {
-        if (login) {          
+        if (login) {
           token = Token.generateToken({
             email: dbRes.rows[0].email,
-            userid : dbRes.rows[0].id
+            userid: dbRes.rows[0].id
           });
           return res.status(200).json({
             loggedin_at: dateString,
@@ -136,8 +137,8 @@ function allUsers(req, res) {
   });
 }
 
-function userProfile(req, res) {
-  pool.query('SELECT * FROM users WHERE id = ($1)', [req.params.user_id], (error, dbRes) => {
+function userProfile(req, res) {  
+  pool.query('SELECT * FROM users WHERE userid = ($1)', [req.params.user_id], (error, dbRes) => {
     if (error) {
       return res.status(500).json({
         "message": "Internal server error"
@@ -145,15 +146,20 @@ function userProfile(req, res) {
     } else {
       if (dbRes.rows[0] == undefined || dbRes.rows[0] == null) {
         return res.status(404).json({
-          "message": "ID not available"
+          "message": "User-ID not available"
         });
       } else {
         if (login) {
-          token = Token.generateToken({
-            user: dbRes.rows[0]
-          });
+          const userData = {
+            name : dbRes.rows[0].username,
+            email: dbRes.rows[0].email,
+            userid: dbRes.rows[0].userid,
+            signedup_on : dbRes.rows[0].created_date
+          };
+                    
           return res.status(200).json({
-            message: `welcome`
+            message: `welcome back ${userData.name}`,
+            user_info: userData
           });
         }
       }

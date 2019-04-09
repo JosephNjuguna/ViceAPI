@@ -9,7 +9,9 @@ const dbConfig = {
 
 const pool = new Pool(dbConfig);
 
-pool.on('connect', (err) => {});
+pool.on('connect', (err) => {
+  // console.log(`connected to ${dbConfig.connectionString}`);
+});
 
 const addTables = () => {
   const queryText =
@@ -24,9 +26,12 @@ const addTables = () => {
       )`;
   pool.query(queryText)
     .then((res) => {
+      // console.log("table added users");
       return res;
     })
-    .catch((err) => {});
+    .catch((err) => {
+      return err;
+    });
 };
 
 const truncateTables = () => {
@@ -40,6 +45,7 @@ const dropTables = () => {
   const queryText = 'DROP TABLE IF EXISTS users';
   pool.query(queryText)
     .then((res) => {
+      console.log("table dropped");
       return res
     })
     .catch((err) => {
