@@ -1,30 +1,35 @@
+const uniqueId = require('../helpers/common');
+const datestring = require('../helpers/common');
+
 const users = {
-    user1 : {
-        name : '',
+    user1: {
+        name: '',
         email: 'test1@mail.com',
-        password:'Test123'
+        password: 'Test123'
     },
-    user2 :{
-        name : 'Jose',
+    user2: {
+        name: 'Jose',
         email: '',
-        password:'Test123'
+        password: 'Test123'
     },
     user3: {
-        name : 'Jose',
+        name: 'Jose',
         email: 'test1@mail.com',
-        password:''
+        password: ''
     },
-    user4 :{
-        name : 'Jose',
+    user4: {
+        userid: uniqueId,
+        name: 'Jose',
         email: 'test2@mail.com',
-        password:'qwerQ@qwerre123'
+        password: 'qwerQ@qwerre123',
+        signedup_on: datestring
     }
-}
+};
 
-const userLogin={
-    user1 : {
+const userLogin = {
+    user1: {
         email: 'test1@mail.com',
-        password:'Test123'
+        password: 'Test123'
     }
 }
 module.exports = users;

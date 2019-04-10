@@ -1,0 +1,6 @@
+exclude_patterns:
+- "**/node_modules/"
+- "**/__test__"
+- "**/__tests__"
+- "**/tests"
+- "**/test"

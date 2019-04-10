@@ -5,6 +5,6 @@ app.listen(port, (err) => {
     if (err) {
         console.log(`Server is not listening on port : ${port}`);
     } else {
-        console.log(`Vice listening on port 3000`);
+        console.log(`Vice listening on port ${port}`);
     }
 });
