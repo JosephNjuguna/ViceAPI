@@ -4,10 +4,9 @@
   "description": "postgresql api ",
   "main": "app.js",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha ./app/__test__/*.js  --timeout 150000 --reporter landing --exit",
-    "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
-    "start": "NODE_ENV=dev node_modules/.bin/nodemon server.js",
-    "dot_env": "node -r dotenv/config server.js"
+    "start": "NODE_ENV=dev nodemon server.js --exec babel-node --",
+    "test": "NODE_ENV=test  nyc mocha --require babel-register ./app/__test__/*.js  --timeout 150000 --exit",
+    "coverage": "npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "author": "JosephNjuguna",
   "license": "ISC",
@@ -17,24 +16,18 @@
     "dotenv": "^7.0.0",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.5.1",
-    "nodemon": "^1.18.10",
     "pg": "^7.9.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
     "coveralls": "^3.0.3",
     "istanbul": "^0.4.5",
-    "jest": "^24.5.0",
-    "mocha": "^6.1.2",
+    "mocha": "^6.1.3",
     "mocha-lcov-reporter": "^1.3.0",
-    "nyc": "^13.3.0",
+    "nodemon": "^1.18.11",
+    "nyc": "^14.0.0",
     "supertest": "^4.0.2"
-  },
-  "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "app/**/*.{js,jsx}"
-    ]
   }
 }
