@@ -1,6 +1,3 @@
-const uniqueId = require('../helpers/common');
-const datestring = require('../helpers/common');
-
 const users = {
     user1: {
         name: '',
@@ -18,11 +15,11 @@ const users = {
         password: ''
     },
     user4: {
-        userid: uniqueId,
+        userid: "1213sadsq3w12",
         name: 'Jose',
         email: 'test2@mail.com',
         password: 'qwerQ@qwerre123',
-        signedup_on: datestring
+        signedup_on: "1/12/2019"
     }
 };
 
@@ -32,4 +29,4 @@ const userLogin = {
         password: 'Test123'
     }
 }
-module.exports = users;
+export default users;

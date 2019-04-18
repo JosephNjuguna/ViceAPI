@@ -1,19 +1,11 @@
-const user = require('./mockData');
-const app = require('../../app');
-const jwt = require('jsonwebtoken');
+import user from './mockData';
+import app from '../../app';
+import jwt from 'jsonwebtoken';
+import databaseInit, { pool }  from '../db/db';
+import  chai from 'chai';
+import  chaiHttp from'chai-http';
 
-const {
-    addTables,
-    createAdmin,
-    dropTables,
-    pool
-} = require('../db/db');
 
-addTables();
-createAdmin();
-
-const chai = require('chai');
-const chaiHttp = require('chai-http');
 var assert = chai.assert;
 var expect = chai.expect; 
 var should = chai.should();
@@ -47,7 +39,8 @@ const admintoken = jwt.sign({
 describe('/USERS auth', function () {
 
     before("add table", (done) => {
-        addTables();
+        databaseInit.addTables();
+        databaseInit.createAdmin();
         done();
     });
 
@@ -64,16 +57,6 @@ describe('/USERS auth', function () {
     });
     //test cases
     describe('/POST AUTHENTIACTION ', (done) => {
-        it('should fail with empty username field', (done) => {
-            chai.request(app)
-                .get('/api/v1/')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    // expect(res.body.message).to.equal('welcome to the api');
-                    if (err) return done();
-                    done();
-                });
-        });
 
         it('should fail with empty username field', (done) => {
             chai.request(app)
@@ -107,6 +90,7 @@ describe('/USERS auth', function () {
                     done();
                 });
         });
+        
 
         it('should check user sign up', (done) => {
             chai.request(app)
