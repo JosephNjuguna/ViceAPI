@@ -1,4 +1,4 @@
-const reqResponses = require('../helpers/responses');
+import reqResponses from '../helpers/responses';
 
 let message;
 class Validations {
@@ -7,7 +7,7 @@ class Validations {
             const{ name, email, password } = req.body;
 
             let re;
-
+            
             if(name == ''){
                 message= "username field empty";
                 return reqResponses.handleError(message, 400, res);
@@ -61,9 +61,45 @@ class Validations {
                 if (!re.test(password)) return reqResponses.handleError(message, 400, res);
             }
             next();
+
         }catch (error) {
             return reqResponses.handleError(error.toString(), 500, res);
         }
     }
+    static async validateLoan(req,res,next){
+        try {
+            const { loan } = req.body;
+            let re;
+
+            if(loan == "" || loan == undefined){
+                return res.status(400).json({
+                    status: 400,
+                    message : "Enter loan amount"
+                });
+            }
+            if(loan){
+                re = /^\d/g;
+                if(!re.test(loan)) return res.status(400).json({ status: 400, message : "Enter valid loan amount" });
+            }
+            next();
+        } catch (error) {
+            return res.status(500).json({
+                message : "Internal server error"
+            });
+        }
+    }
+    // static async validateID(req,res,next){
+    //     try{
+    //         const{ id } = req.params;
+    //         let re = /^[a-zA-Z]/;
+    //         if(id){
+    //             if(id === '*' ||id === `@` ||id === `+` ||id === `--` || re.test(id) )
+    //             return res.status(404).json({message: "Your url is invalid"});
+    //         }
+    //         next();
+    //     }catch(error){
+    //         return reqResponses.handleError(error.toString(), 500, res);
+    //     }
+    // }
 }
-module.exports = Validations;
+export default Validations;

@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
+import jwt  from 'jsonwebtoken';
+import dotenv  from 'dotenv';
 
 dotenv.config();
 
@@ -10,4 +10,4 @@ class Token{
     }
 }
 
-module.exports = {Token};
+export default Token;
