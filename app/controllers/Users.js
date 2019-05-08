@@ -109,14 +109,11 @@ class Users {
       // reqResponses.internalError(res);
     }
   }
+
   static async verifyUser(req, res) {
     try {
-      const {
-        email,
-      } = req.params;
-      const {
-        status,
-      } = req.body;
+      const email = req.params.email;
+      const status = req.body.status;
       const userVerifaction = new Usermodel({
         email,
         status
@@ -129,6 +126,7 @@ class Users {
       // reqResponses.internalError(res);
     }
   }
+
 }
 
 export default Users;

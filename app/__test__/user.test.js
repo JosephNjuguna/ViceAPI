@@ -1,14 +1,13 @@
-import userData from '../MockData/usermockData';
 import jwt from 'jsonwebtoken';
 import app from '../../app';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import Db from '../db/db';
 import userId from "../helpers/Uid";
-import Token from '../helpers/Jwt';
 import userDate from '../helpers/Date';
 
 chai.should();
+const { expect } = chai;
 chai.use(chaiHttp);
 const userIdtest = userId.uniqueId();
 const user = {
@@ -119,4 +118,36 @@ describe("/USER DATA", () => {
 
   });
 
+  describe('/PATCH admin verify user', () => {
+  
+    it('should check user email is not available', (done) => {
+			chai.request(app)
+				.patch('/api/v1/user/test2@mail.com/verify')
+				.set('authorization', `Bearer ${adminToken}`)
+				.send({
+					status: 'verified'
+				})
+				.end((err, res) => {
+					expect(res.status).equals(404);
+					if (err) return done();
+					done();
+				});
+		});
+
+		it('should check user email is available', (done) => {
+      chai.request(app)
+				.patch('/api/v1/user/test1@mail.com/verify')
+				.set('authorization', `Bearer ${adminToken}`)
+				.send({
+					status: 'verified',
+				})
+				.end((err, res) => {
+					res.should.have.status(200);
+					if (err) return done();
+					done();
+				});
+    });
+    
+  });
+  
 })

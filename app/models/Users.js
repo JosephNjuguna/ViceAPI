@@ -71,7 +71,9 @@ class UsersModel {
 
   async findOne() {
     const sql = `SELECT * FROM users WHERE userid='${this.payload}'`;
-    const { rows } =await Db.query(sql);
+    const {
+      rows
+    } = await Db.query(sql);
     if (rows.length === 0) {
       return false
     }
@@ -79,10 +81,15 @@ class UsersModel {
     return true;
   }
 
-  async verifyUser(){
-
+  async verifyUser() {
+    const sql = 'UPDATE users SET status = ($1) WHERE email = $2 returning *;';
+    const values = [this.payload.status, this.payload.email];
+    const { rows } = await Db.query(sql, values);
+    if (rows.length === 0) {
+      return false
+    }
+    this.result = rows[0];
+    return true;
   }
-
 }
-
 export default UsersModel;

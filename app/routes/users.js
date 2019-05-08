@@ -9,6 +9,7 @@ router.post('/signup', validate.validatesignup, controllers.signup);
 router.post('/login', validate.validatelogin, controllers.login);
 router.get('/profile', Auth.checkUser, controllers.userProfile);
 router.get('/users', Auth.checkAdmin, controllers.allUsers );
-router.get('/users/:userid', Auth.checkAdmin, controllers.oneUser);
+router.get('/user/:userid', Auth.checkAdmin, controllers.oneUser);
+router.patch('/user/:email/verify', Auth.checkAdmin, controllers.verifyUser);
 
 export default router;

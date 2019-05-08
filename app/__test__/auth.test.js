@@ -24,9 +24,7 @@ const user = {
   isAdmin: false,
   signedupDate: userDate.date()
 };
-console.log(user.email, user.userid, user.firstname, user.lastname, user.address);
 
-console.log(user);
 const usertoken = new Token.genToken( user.email, user.userid, user.firstname, user.lastname, user.address);
 const admintoken = new Token.genToken( 'admin123@mail.com','123admin', 'admin', 'main','database');
 const userid = 150;
@@ -44,7 +42,6 @@ describe('/USERS auth', () => {
     done();
   });
 
-  // test cases
   describe('/POST AUTHENTIACTION ', () => {
 
     it('should fail with empty firstname field', (done) => {
@@ -167,5 +164,4 @@ describe('/USERS auth', () => {
 				});
 		});
   });
-  
 });
