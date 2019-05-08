@@ -4,9 +4,10 @@
   "description": "postgresql api ",
   "main": "app.js",
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha ./app/__test__/*.js  --timeout 150000 --reporter landing --exit",
+    "test": "NODE_ENV=test mocha --require babel-register ./app/__test__/*.js  --timeout 150000 --exit",
     "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
-    "start": "NODE_ENV=dev node_modules/.bin/nodemon server.js",
+    "start": "NODE_ENV=dev nodemon server.js --exec babel-node --",
+    "lint": "node_modules/.bin/eslint ./ --fix",
     "dot_env": "node -r dotenv/config server.js"
   },
   "author": "JosephNjuguna",
@@ -21,11 +22,14 @@
     "pg": "^7.9.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
     "coveralls": "^3.0.3",
-    "istanbul": "^0.4.5",
-    "jest": "^24.5.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.2",
     "mocha": "^6.1.2",
     "mocha-lcov-reporter": "^1.3.0",
     "nyc": "^13.3.0",

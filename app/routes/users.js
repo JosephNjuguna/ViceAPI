@@ -1,32 +1,14 @@
-const express = require('express');
-const controllers = require('../controllers/users');
-const validate  = require('../middleware/validations');
-const { checkUser, checkAdmin } = require('../middleware/checkauthentication');
+import express from 'express';
+import controllers from '../controllers/Users';
+import validate from '../middleware/validations';
+import Auth from '../middleware/auth';
+
 const router = express.Router();
 
-router.get(
-    '/',
-    controllers.welcome
-);
-router.post(
-    '/signup',  
-    validate.validatesignup,
-    controllers.signup
-);
-router.post(
-    '/login',
-    validate.validatelogin,
-    controllers.login
-);
-router.get(
-    '/user/:user_id',
-    checkUser,
-    controllers.userProfile
-);
-router.get(
-    '/users',
-    checkAdmin,
-    controllers.allUsers
-);
+router.post('/signup', validate.validatesignup, controllers.signup);
+router.post('/login', validate.validatelogin, controllers.login);
+router.get('/profile', Auth.checkUser, controllers.userProfile);
+router.get('/users', Auth.checkAdmin, controllers.allUsers );
+router.get('/users/:userid', Auth.checkAdmin, controllers.oneUser);
 
-module.exports = router;
+export default router;

@@ -1,83 +1,82 @@
-const {
-  Pool
-} = require('pg');
-const config = require('../../config/config');
+import { Pool } from 'pg';
+import config from '../../config/config';
+import userDate from '../helpers/Date';
 require('dotenv').config();
 const dbConfig = {
-  connectionString: config.db
+  connectionString: config.db,
 };
 
-const pool = new Pool(dbConfig);
+class DatabaseInit{
 
-pool.on('connect', (err) => {
-  // console.log(`connected to ${dbConfig.connectionString}`);
-});
-
-const addTables = () => {
-  const queryText =
-    `CREATE TABLE IF NOT EXISTS
-      users(
-        id serial PRIMARY KEY,
-        userid VARCHAR(100) NOT NULL,
-        username VARCHAR(128) NOT NULL,
-        email VARCHAR(128) NOT NULL,
-        password VARCHAR(100)  NOT NULL,
-        created_date VARCHAR(100)  NOT NULL
-      )`;
-  pool.query(queryText)
-    .then((res) => {
-      // console.log("table added users");
-      return res;
-    })
-    .catch((err) => {
-      return err;
+  constructor() {
+    this.pool = new Pool(dbConfig);
+    this.connect = async () => this.pool.on('connect', (err) => {
+      // console.log(`connected to ${dbConfig.connectionString}`);
     });
-};
-
-const truncateTables = () => {
-  pool.query('TRUNCATE TABLE users CASCADE',
-    (err) => {
-      if (err) {}
-    });
-};
-
-const dropTables = () => {
-  const queryText = 'DROP TABLE IF EXISTS users';
-  pool.query(queryText)
-    .then((res) => {
-      console.log("table dropped");
-      return res
-    })
-    .catch((err) => {
-      return err;
-    });
-};
-
-const createAdmin = () => {
-  var m = new Date();
-  var datestring = m.getFullYear() + "/" +
-    ("0" + (m.getMonth() + 1)).slice(-2) + "/" +
-    ("0" + m.getDate()).slice(-2) + " " +
-    ("0" + m.getHours()).slice(-2) + ":" +
-    ("0" + m.getMinutes()).slice(-2) + ":" +
-    ("0" + m.getSeconds()).slice(-2);
-  
-  const adminUser = {
-    userid: '123admin',
-    username: "admin",
-    email: "admin123@mail.com",
-    password: 'qwerQ@qwerre123',
-    signup_on: datestring
+    
+    this.queryText = `CREATE TABLE IF NOT EXISTS users(
+          id serial PRIMARY KEY,
+          userid VARCHAR(100) NOT NULL,
+          email VARCHAR(128) NOT NULL,
+          firstname VARCHAR(128) NOT NULL,
+          lastname VARCHAR(128) NOT NULL,
+          userpassword VARCHAR(128) NOT NULL,
+          address VARCHAR(128) NOT NULL,
+          status VARCHAR(128) NOT NULL,
+          isAdmin VARCHAR(100)  NOT NULL,
+          signedupDate VARCHAR(100)  NOT NULL
+        )`;
+    this.truncate =`TRUNCATE TABLE users CASCADE`;
+    this.dropTables = 'DROP TABLE IF EXISTS users';
+    this.deleteData = 'DELETE FROM users';
+    this.initDb();
+    this.createAdmin();
   };
-  pool.query("INSERT INTO users (userid, username, email, password, created_date) VALUES ($1, $2, $3, $4, $5)", [
-    adminUser.userid, adminUser.username, adminUser.email, adminUser.password, adminUser.signup_on
-  ]);
-};
 
-module.exports = {
-  addTables,
-  dropTables,
-  truncateTables,
-  createAdmin,
-  pool
-};
+  async query(sql, data = []) {
+    const conn = await this.connect();
+    try {
+      if (data.length) {
+          return await conn.query(sql, data);
+      }
+      return await conn.query(sql);
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  }
+
+  async createAdmin () {
+    const adminUser = {
+      userid: '123admin',
+      email: process.env.email,
+      firstname: 'admin',
+      lastname: 'admin',
+      password: process.env.password,
+      address: "kenya",
+      status: "verified",
+      isAdmin: true,
+      signedupDate: userDate.date(),
+    };
+    const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) values($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9)  returning *';
+    const values =  [adminUser.userid, adminUser.email, adminUser.firstname, adminUser.lastname, adminUser.password, adminUser.address, adminUser.status, adminUser.isAdmin, adminUser.signedupDate];
+    const { rows } = await this.query(sql, values);
+  };
+
+  async initDb() {
+    await this.query(this.queryText);
+    console.log("Tables are created");
+  }
+
+  async deleteData() {
+    await this.query(this.deleteData);
+    console.log("Data deleted");
+  }
+
+  async dropTables(){
+    await this.query(this.dropTables);
+    console.log("Tables deleted");
+  }
+
+}
+export default new DatabaseInit();

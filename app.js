@@ -1,14 +1,13 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const routes = require('./app/routes');
-const {addTables,dropTables, createAdmin} = require('./app/db/db');
+import express from 'express';
+import bodyParser from 'body-parser';
+import routes from './app/routes';
 
-addTables();
 require('dotenv').config();
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-  extended: true
+  extended: true,
 }));
 routes(app);
 
