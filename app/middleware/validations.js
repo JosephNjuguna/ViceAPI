@@ -1,7 +1,8 @@
 import reqResponses from '../helpers/Responses';
+import Usermodel from '../models/Users';
 
 class Validations {
-  static async validatesignup(req, res, next) {
+  static validatesignup(req, res, next) {
     try {
       const {
         firstname,
@@ -42,7 +43,7 @@ class Validations {
     }
   }
 
-  static async validatelogin(req, res, next) {
+  static validatelogin(req, res, next) {
     try {
       const {
         email,
@@ -51,11 +52,11 @@ class Validations {
 
       let re;
       if (email === '' || password === '' || !email || !password) {
-        reqResponses.handleError(400, 'Ensure all fields are filled', res);
+        return reqResponses.handleError(400, 'Ensure all fields are filled', res);
       }
       if (email) {
         re = /(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)/;
-        if (!re.test(email) || email === '') reqResponses.handleError(400, 'enter valid email', res);
+        if (!re.test(email) || email === '') return reqResponses.handleError(400, 'enter valid email', res);
       }
       next();
     } catch (error) {
@@ -63,7 +64,7 @@ class Validations {
     }
   }
 
-  static async validateID(req, res, next) {
+  static validateID(req, res, next) {
     try {
       const {
         id,
@@ -80,7 +81,7 @@ class Validations {
     }
   }
 
-  static async validateLoan(req, res, next) {
+  static validateLoan(req, res, next) {
     const loan = req.body.amount;
 
     let re;
@@ -95,6 +96,32 @@ class Validations {
       }
     }
     next();
+  }
+
+  static async validatenewEmail(req,res,next){
+    try {
+      const email = req.body.email;
+      const checkEmail = await Usermodel.findByEmail(email);
+      if(checkEmail){
+        return reqResponses.handleError(409, 'Users email already exist', res);
+      }
+      next();
+    } catch (error) {
+      reqResponses.handleError(500, error.toString(), res);
+    }
+  }
+
+  static async validateexistingEmail(req,res,next){
+    try {
+      const email = req.body.email;
+      const checkEmail = await Usermodel.login(email);
+      if(!checkEmail){
+        return reqResponses.handleError(404, 'No email found', res);
+      }
+      next();
+    } catch (error) {
+      reqResponses.handleError(500, error.toString(), res);
+    }
   }
 }
 export default Validations;

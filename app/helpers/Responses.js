@@ -1,6 +1,6 @@
 class Responses {
   static handleSignupsuccess(statusCode, message, token, data, res) {
-    res.status(statusCode).json({
+    return res.status(statusCode).json({
       status: statusCode,
       message,
       token,
@@ -9,7 +9,7 @@ class Responses {
   }
 
   static handleSuccess(statusCode, message, data, res) {
-    res.status(statusCode).json({
+    return res.status(statusCode).json({
       status: statusCode,
       message,
       data,
@@ -17,7 +17,7 @@ class Responses {
   }
 
   static handleError(statusCode, message, res) {
-    res.status(statusCode).json({
+    return res.status(statusCode).json({
       status: statusCode,
       message,
     });
@@ -31,4 +31,4 @@ class Responses {
   }
 }
 
-module.exports = Responses;
+export default Responses;

@@ -7,7 +7,7 @@ class UsersModel {
     this.result = null;
   }
 
-  async findByEmail(email) {
+  static async findByEmail(email) {
     const sql = `SELECT * FROM users WHERE email='${email}'`;
     const {
       rows
@@ -31,21 +31,14 @@ class UsersModel {
       isAdmin: this.payload.isAdmin,
       signedupDate: this.payload.signedupDate,
     };
-    const findUser = await this.findByEmail(user.email);
-    if (findUser === false) {
-      const values = [user.userid, user.email, user.firstname, user.lastname, user.password, user.address, user.status, user.isAdmin, user.signedupDate];
-      const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
-      const {
-        rows
-      } = await Db.query(sql, values);
-      this.result = rows[0];
-      return true;
-    }
-    return false;
+    const values = [user.userid, user.email, user.firstname, user.lastname, user.password, user.address, user.status, user.isAdmin, user.signedupDate];
+    const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
+    const { rows } = await Db.query(sql, values);
+    this.result = rows[0];
+    return true;
   }
 
-  async login() {
-    const email = this.payload.email;
+  static async login(email) {
     const sql = `SELECT * FROM users WHERE email='${email}'`;
     const {
       rows
@@ -53,8 +46,8 @@ class UsersModel {
     if (rows.length === 0) {
       return false
     }
-    this.result = rows[0];
-    return true;
+    const result = rows[0];
+    return result;
   }
 
   async allUsers() {
@@ -69,11 +62,9 @@ class UsersModel {
     return false
   }
 
-  async findOne() {
-    const sql = `SELECT * FROM users WHERE userid='${this.payload}'`;
-    const {
-      rows
-    } = await Db.query(sql);
+  static async findOne(userid) {
+    const sql = `SELECT * FROM users WHERE userid='${userid}'`;
+    const { rows } = await Db.query(sql);
     if (rows.length === 0) {
       return false
     }
@@ -81,9 +72,9 @@ class UsersModel {
     return true;
   }
 
-  async verifyUser() {
+  static async verifyUser(email, status) {
     const sql = 'UPDATE users SET status = ($1) WHERE email = $2 returning *;';
-    const values = [this.payload.status, this.payload.email];
+    const values = [status,email];
     const { rows } = await Db.query(sql, values);
     if (rows.length === 0) {
       return false
