@@ -11,6 +11,7 @@ class LoanModel {
     async requestloan() {
         const amount = parseFloat(this.payload.loan);
         const calculateTotalamount = totalAmountdetail.totalAmountdata(amount);
+        const sql = `SELECT * FROM loans WHERE status='${status}' AND repaid='${repaidStatus}'`;
         const obj = await db.find(o => o.user === this.payload.email);
         if (!obj) {
             const loanInfo = {
@@ -93,9 +94,10 @@ class LoanModel {
 
     async payloan() {
         const amount = parseFloat(this.payload.loanInstallment);
-        const obj = db.find(o => o.loanId === parseInt(this.payload.userloanId) && o.user === this.payload.email);
+        const sql = `SELECT * FROM loans WHERE loanid='${this.payload.userloanId}' AND useremail='${this.payload.email}'`;
+        const obj = await Db.query(sql);
         if (obj) {
-            const userLoanPayments = payments.filter(o => o.loanId = obj.loanId);
+            const userLoanPayments = `SELECT * FROM loans WHERE loanid='${obj.loanid}'`;
             const paymentsCount = userLoanPayments.length;
             const latestPayment = userLoanPayments[paymentsCount - 1];
             const balance = latestPayment.balance - amount;
@@ -106,7 +108,9 @@ class LoanModel {
             }
             if (latestPayment.balance === 0) {
                 const loanpaymentDetail = await this.loanAcceptdetail(obj.loanId, obj.user, obj.requestedOn, obj.status, obj.tenor, obj.principalAmount, obj.paymentInstallment, obj.totalAmounttopay, obj.interestRate, this.payload.paidOn);
-                db.splice(obj.id - 1, 1, loanpaymentDetail);
+                const sql = 'UPDATE loans SET repaid = ($1) WHERE loanid = $2 returning *;';
+                const values = [status,email];
+                const finishedPayment = await Db.query(sql,values)
                 this.result = 'Thank for completing your loan payment';
                 return true;
             }
@@ -126,13 +130,15 @@ class LoanModel {
                     return true;
                 }
                 const secondLoanpaymentdetails = await this.secondLoanpayment(obj.loanId, obj.user, obj.totalAmounttopay, amount, balance, this.payload.paidOn);
-                payments.push(secondLoanpaymentdetails);
-                this.result = secondLoanpaymentdetails;
+                const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
+                const {secondpayment} = await Db.query(sql)
+                this.result = secondpayment[0];
                 return true;
             } else {
                 const newPaymentdetails = await this.continouedLoanpayment(obj.loanId, obj.user, obj.totalAmounttopay, amount, balance, paymentNo, this.payload.paidOn);
-                payments.push(newPaymentdetails);
-                this.result = newPaymentdetails;
+                const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
+                const {payments} = await Db.query(sql);
+                this.result = payments[0];
                 return true;
             }
         }
@@ -191,10 +197,15 @@ class LoanModel {
             paid: 0,
             paymentNo: 0,
         };
+        const loanPaymentdata = 'INSERT INTO loans (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
+        const values = aPayment;
+        const paymentData = await Db.query(loanPaymentdata, values);
+        console.log(paymentData);
+        
         const loanAcceptdetail = await this.acceptLoan(obj.loanId, obj.user, obj.requestedOn, status, obj.repaid, obj.tenor, obj.principalAmount, obj.paymentInstallment, obj.totalAmounttopay, obj.interestRate);
-        payments.push(aPayment);
-        db.splice(obj.id - 1, 1, loanAcceptdetail);
-        this.result = loanAcceptdetail;
+        const sql = 'UPDATE loans SET repaid = ($1) WHERE loanid = $2 returning *;';
+        const  { loanAccpetance } = await Db.query(sql, loanAcceptdetail);
+        this.result = loanAccpetance;
         return true;
     }
 
@@ -206,7 +217,7 @@ class LoanModel {
             repaidStatus = true;
         }
 
-        const sql = `SELECT * FROM loans WHERE status='${status}' && repaid='${repaidStatus}'`;
+        const sql = `SELECT * FROM loans WHERE status='${status}' AND repaid='${repaidStatus}'`;
         const {
             rows
         } = await Db.query(sql);
@@ -218,7 +229,7 @@ class LoanModel {
     }
 
     static async repaymentHistory(email, userloanId) {
-        const sql = `SELECT * FROM loans WHERE email='${email}' && loanid='${userloanId}'`;
+        const sql = `SELECT * FROM payment WHERE email='${email}' && loanid='${userloanId}'`;
         const {
             rows
         } = await Db.query(sql);
@@ -230,7 +241,7 @@ class LoanModel {
     }
 
     static async allLoanpayments() {
-        const sql = 'SELECT * FROM loans';
+        const sql = 'SELECT * FROM payments';
         const {
             rows
         } = await Db.query(sql);
