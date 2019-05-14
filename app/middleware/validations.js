@@ -9,9 +9,9 @@ class Validations {
         lastname,
         address,
         email,
-        password
+        password,
       } = req.body;
-      
+
       let re;
 
       if (!firstname || !lastname || !address || !email || !password) {
@@ -83,7 +83,6 @@ class Validations {
 
   static validateLoan(req, res, next) {
     const loan = req.body.amount;
-
     let re;
 
     if (!loan || loan === '') {
@@ -92,17 +91,17 @@ class Validations {
     if (loan) {
       re = /[0-9_]{3,}/;
       if (!re.test(loan)) {
-        reqResponses.handleError(400, 'enter 3 digits or more', res);
+        return reqResponses.handleError(400, 'enter 3 digits or more', res);
       }
     }
     next();
   }
 
-  static async validatenewEmail(req,res,next){
+  static async validatenewEmail(req, res, next) {
     try {
-      const email = req.body.email;
+      const { email } = req.body;
       const checkEmail = await Usermodel.findByEmail(email);
-      if(checkEmail){
+      if (checkEmail) {
         return reqResponses.handleError(409, 'Users email already exist', res);
       }
       next();
@@ -111,11 +110,11 @@ class Validations {
     }
   }
 
-  static async validateexistingEmail(req,res,next){
+  static async validateexistingEmail(req, res, next) {
     try {
-      const email = req.body.email;
+      const { email } = req.body;
       const checkEmail = await Usermodel.login(email);
-      if(!checkEmail){
+      if (!checkEmail) {
         return reqResponses.handleError(404, 'No email found', res);
       }
       next();

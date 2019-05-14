@@ -1,7 +1,6 @@
-import Db from "../db/db";
+import Db from '../db/db';
 
 class UsersModel {
-
   constructor(payload = null) {
     this.payload = payload;
     this.result = null;
@@ -10,13 +9,13 @@ class UsersModel {
   static async findByEmail(email) {
     const sql = `SELECT * FROM users WHERE email='${email}'`;
     const {
-      rows
+      rows,
     } = await Db.query(sql);
     if (rows.length === 0) {
-      return false
+      return false;
     }
     return true;
-    this.result
+    this.result;
   }
 
   async signup() {
@@ -44,7 +43,7 @@ class UsersModel {
       rows
     } = await Db.query(sql);
     if (rows.length === 0) {
-      return false
+      return false;
     }
     const result = rows[0];
     return result;
@@ -53,20 +52,20 @@ class UsersModel {
   async allUsers() {
     const sql = 'SELECT * FROM users';
     const {
-      rows
+      rows,
     } = await Db.query(sql);
     if (rows) {
       this.result = rows;
       return true;
     }
-    return false
+    return false;
   }
 
   static async findOne(userid) {
     const sql = `SELECT * FROM users WHERE userid='${userid}'`;
     const { rows } = await Db.query(sql);
     if (rows.length === 0) {
-      return false
+      return false;
     }
     this.result = rows[0];
     return true;
@@ -74,10 +73,10 @@ class UsersModel {
 
   static async verifyUser(email, status) {
     const sql = 'UPDATE users SET status = ($1) WHERE email = $2 returning *;';
-    const values = [status,email];
+    const values = [status, email];
     const { rows } = await Db.query(sql, values);
     if (rows.length === 0) {
-      return false
+      return false;
     }
     this.result = rows[0];
     return true;

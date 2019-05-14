@@ -9,7 +9,6 @@ import Token from '../helpers/Token';
 const userid = Userid.uniqueId();
 const signedupDate = userDate.date();
 class Users {
-
   static async signup(req, res) {
     try {
       const {
@@ -17,7 +16,7 @@ class Users {
         lastname,
         address,
         email,
-        password
+        password,
       } = req.body;
       const hashedPassword = EncryptData.generateHash(password);
       const addUser = await new Usermodel({
@@ -27,7 +26,7 @@ class Users {
         lastname,
         password: hashedPassword,
         address,
-        status: "unverified",
+        status: 'unverified',
         isAdmin: false,
         signedupDate,
       });
@@ -44,16 +43,19 @@ class Users {
   static async login(req, res) {
     try {
       const incomingEmail = req.body.email;
-      const password = req.body.password;
+      const { password } = req.body;
       const addUser = await Usermodel.login(incomingEmail);
-      const { email, userid, firstname, lastname, address } = addUser;
+      const {
+        email, userid, firstname, lastname, address,
+      } = addUser;
       if (EncryptData.validPassword(password, addUser.userpassword)) {
         const token = Token.genToken(email, userid, firstname, lastname, address);
         reqResponses.handleSignupsuccess(200, `welcome ${firstname}`, token, addUser, res);
-      }else{
+      } else {
         reqResponses.handleError(401, 'Incorrect password', res);
       }
     } catch (error) {
+      console.log(error.toString());
       reqResponses.handleError(500, error.toString(), res);
     }
   }
@@ -81,7 +83,7 @@ class Users {
       if (!userInfo) {
         return reqResponses.handleError(404, 'User id not found', res);
       }
-      reqResponses.handleSuccess(200, `welcome`, userInfo.result, res);
+      reqResponses.handleSuccess(200, 'welcome', userInfo.result, res);
     } catch (error) {
       reqResponses.handleError(500, error.toString(), res);
     }
@@ -102,21 +104,18 @@ class Users {
 
   static async verifyUser(req, res) {
     try {
+      const { email } = req.params;
+      const { status } = req.body;
 
-      const email = req.params.email;
-      const status = req.body.status;
-
-      const userVerifaction = await Usermodel.verifyUser(email,status);
+      const userVerifaction = await Usermodel.verifyUser(email, status);
 
       if (!userVerifaction) {
         return reqResponses.handleError(404, 'User email not found', res);
       }
       reqResponses.handleSuccess(200, 'user verified successfully', userVerifaction.result, res);
-    
     } catch (error) {
       reqResponses.handleError(500, error.toString(), res);
     }
   }
-
 }
 export default Users;

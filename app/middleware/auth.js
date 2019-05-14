@@ -16,7 +16,6 @@ class AuthValidator {
         next();
       }
     } catch (e) {
-      console.log(e);
       res.status(401).json({
         status: '401',
         message: 'Auth failed',
@@ -42,8 +41,6 @@ class AuthValidator {
         }
       }
     } catch (e) {
-      console.log(e);
-      
       res.status(401).json({
         message: 'Auth failed',
         error: e,

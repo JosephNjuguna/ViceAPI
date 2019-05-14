@@ -5,8 +5,7 @@ import loans from '../controllers/Loans';
 const route = express.Router();
 
 route.get('/payments',
-    checkAuth.checkAdmin,
-    loans.allLoanpayments
-)
+  checkAuth.checkAdmin,
+  loans.allLoanpayments);
 
 export default route;

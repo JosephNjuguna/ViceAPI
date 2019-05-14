@@ -1,10 +1,12 @@
 import jwt from 'jsonwebtoken';
-import app from '../../app';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import app from '../../app';
 import Db from '../db/db';
-import userId from "../helpers/Uid";
+import userId from '../helpers/Uid';
 import userDate from '../helpers/Date';
+
+require('dotenv').config();
 
 chai.should();
 const { expect } = chai;
@@ -16,16 +18,17 @@ const user = {
   firstname: 'test',
   lastname: 'test',
   password: 'qwerQ@qwerre123',
-  address: "kenya",
-  status: "unverified",
+  address: 'kenya',
+  status: 'unverified',
   isAdmin: false,
-  signedupDate: userDate.date()
+  signedupDate: userDate.date(),
 };
 
-let userToken, wrongIdToken, adminToken;
+let userToken; let wrongIdToken; let
+  adminToken;
 const wrongId = 134243;
 
-describe("/USER DATA", () => {
+describe('/USER DATA', () => {
   before('add user', (done) => {
     adminToken = jwt.sign({
       email: 'admin123@gmail.com',
@@ -37,7 +40,7 @@ describe("/USER DATA", () => {
     process.env.JWT_KEY, {
       expiresIn: '1h',
     });
-  userToken = jwt.sign({
+    userToken = jwt.sign({
       email: 'test1@mail.com',
       userid: user.userid,
       firstname: 'Joseph',
@@ -47,7 +50,7 @@ describe("/USER DATA", () => {
     process.env.JWT_KEY, {
       expiresIn: '1h',
     });
-  wrongIdToken = jwt.sign({
+    wrongIdToken = jwt.sign({
       email: 'test1@mail.com',
       userid: 'ds2323dse23',
       firstname: 'Joseph',
@@ -66,11 +69,11 @@ describe("/USER DATA", () => {
     Db.query('DELETE FROM users');
     done();
   });
-  
+
   describe('/GET user datail', () => {
     it('should not return a user when ID is invalid', (done) => {
       chai.request(app)
-        .get(`/api/v1/profile`)
+        .get('/api/v1/profile')
         .set('authorization', `Bearer ${wrongIdToken}`)
         .end((err, res) => {
           res.should.have.status(404);
@@ -81,7 +84,7 @@ describe("/USER DATA", () => {
 
     it('should return one user detail', (done) => {
       chai.request(app)
-        .get(`/api/v1/profile`)
+        .get('/api/v1/profile')
         .set('authorization', `Bearer ${userToken}`)
         .end((err, res) => {
           res.should.have.status(200);
@@ -89,11 +92,9 @@ describe("/USER DATA", () => {
           done();
         });
     });
-
   });
 
   describe('/GET all users', () => {
-
     it('should not  return all users if not admin', (done) => {
       chai.request(app)
         .get('/api/v1/users')
@@ -115,39 +116,35 @@ describe("/USER DATA", () => {
           done();
         });
     });
-
   });
 
   describe('/PATCH admin verify user', () => {
-  
     it('should check user email is not available', (done) => {
-			chai.request(app)
-				.patch('/api/v1/user/test2@mail.com/verify')
-				.set('authorization', `Bearer ${adminToken}`)
-				.send({
-					status: 'verified'
-				})
-				.end((err, res) => {
-					expect(res.status).equals(404);
-					if (err) return done();
-					done();
-				});
-		});
-
-		it('should check user email is available', (done) => {
       chai.request(app)
-				.patch('/api/v1/user/test1@mail.com/verify')
-				.set('authorization', `Bearer ${adminToken}`)
-				.send({
-					status: 'verified',
-				})
-				.end((err, res) => {
-					res.should.have.status(200);
-					if (err) return done();
-					done();
-				});
+        .patch('/api/v1/user/test2@mail.com/verify')
+        .set('authorization', `Bearer ${adminToken}`)
+        .send({
+          status: 'verified',
+        })
+        .end((err, res) => {
+          expect(res.status).equals(404);
+          if (err) return done();
+          done();
+        });
     });
-    
+
+    it('should check user email is available', (done) => {
+      chai.request(app)
+        .patch('/api/v1/user/test1@mail.com/verify')
+        .set('authorization', `Bearer ${adminToken}`)
+        .send({
+          status: 'verified',
+        })
+        .end((err, res) => {
+          res.should.have.status(200);
+          if (err) return done();
+          done();
+        });
+    });
   });
-  
-})
+});
