@@ -28,7 +28,7 @@ class Users {
         address,
         status: 'unverified',
         isAdmin: false,
-        signedupDate,
+        signedupDate
       });
       if (!addUser.signup()) {
         reqResponses.handleError(409, 'Email already in use', res);
@@ -55,7 +55,6 @@ class Users {
         reqResponses.handleError(401, 'Incorrect password', res);
       }
     } catch (error) {
-      console.log(error.toString());
       reqResponses.handleError(500, error.toString(), res);
     }
   }
@@ -68,7 +67,6 @@ class Users {
       }
       reqResponses.handleSuccess(200, 'All users record', allUserdata.result, res);
     } catch (error) {
-      console.log(error.toString());
       reqResponses.handleError(500, error.toString(), res);
     }
   }

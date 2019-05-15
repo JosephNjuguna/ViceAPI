@@ -1,5 +1,7 @@
 import reqResponses from '../helpers/Responses';
 import Usermodel from '../models/Users';
+import Loanmodel from '../models/Loans';
+import jwt from 'jsonwebtoken';
 
 class Validations {
   static validatesignup(req, res, next) {
@@ -116,6 +118,22 @@ class Validations {
       const checkEmail = await Usermodel.login(email);
       if (!checkEmail) {
         return reqResponses.handleError(404, 'No email found', res);
+      }
+      next();
+    } catch (error) {
+      reqResponses.handleError(500, error.toString(), res);
+    }
+  }
+  static async validateexistingloanrequest(req, res, next) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+			const decoded = jwt.verify(token, process.env.JWT_KEY);
+      req.userData = decoded;
+      
+      const uid  = req.userData.userid;
+      const checkEmail = await Loanmodel.findMail(uid);
+      if (checkEmail) {
+        return reqResponses.handleError(409, 'You have a loan request', res);
       }
       next();
     } catch (error) {

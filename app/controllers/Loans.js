@@ -16,37 +16,21 @@ class Loans {
 			req.userData = decoded;
 			const loan = req.body.amount;
 			const requestedloan = loan;
-			const {
-				firstname
-			} = req.userData;
-			const {
-				lastname
-			} = req.userData;
-			const {
-				email
-			} = req.userData;
-			const {
-				userid
-			} = req.userData;
+			const { firstname , lastname, email,userid } = req.userData;
 			const dateRequested = requestedDate;
 			const loanrequestedId = loanId;
-
-			const loanModel = await Models.requestloan(
+			
+			const loanModel = await Models.requestloan({
 				requestedloan,
 				firstname,
 				lastname,
 				email,
 				userid,
 				dateRequested,
-				loanrequestedId,
-			);
-			console.log(loanModel);
-			if (loanModel) {
-				reqResponses.handleSuccess(200, 'Loan request successful', await loanModel.result, res);
-			}
-			return reqResponses.handleError(409, 'You cant request loan twice. You already have a loan request.', res);
+				loanrequestedId
+			});
+			reqResponses.handleSuccess(200, 'Loan request successful', await loanModel, res);
 		} catch (error) {
-			console.log(error);
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -185,6 +169,7 @@ class Loans {
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
+	
 }
 
 export default Loans;

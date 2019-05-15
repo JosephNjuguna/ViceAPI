@@ -34,9 +34,6 @@ class DatabaseInit {
       this.queryLoans = `CREATE TABLE IF NOT EXISTS loans(
           id serial PRIMARY KEY,
           loanid VARCHAR(20) NOT NULL,
-          firstname VARCHAR(28) NOT NULL,
-          lastname VARCHAR(28) NOT NULL,
-          useremail VARCHAR(100) NOT NULL,
           userid VARCHAR(28) NOT NULL,
           requestedOn VARCHAR(28) NOT NULL,
           status VARCHAR(10)  NOT NULL,
@@ -45,7 +42,6 @@ class DatabaseInit {
           principalAmount VARCHAR(10) NOT NULL,
           paymentInstallment VARCHAR(10)  NOT NULL,
           totalAmounttopay VARCHAR(28) NOT NULL,
-          balance VARCHAR(28) NOT NULL,
           intrestRate VARCHAR(28) NOT NULL
         )`;
 
@@ -106,6 +102,8 @@ class DatabaseInit {
       await this.query(this.queryUsers);
       await this.query(this.queryLoans);
       await this.query(this.queryPayments);
+      console.log("tables created");
+      
     } catch (error) {
     }
   }

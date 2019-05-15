@@ -9,7 +9,7 @@ class UsersModel {
   static async findByEmail(email) {
     const sql = `SELECT * FROM users WHERE email='${email}'`;
     const {
-      rows,
+      rows
     } = await Db.query(sql);
     if (rows.length === 0) {
       return false;
