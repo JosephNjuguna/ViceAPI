@@ -52,9 +52,10 @@ class UsersModel {
   async allUsers() {
     const sql = 'SELECT * FROM users';
     const {
-      rows,
+      rows
     } = await Db.query(sql);
     if (rows) {
+      console.log(rows);
       this.result = rows;
       return true;
     }

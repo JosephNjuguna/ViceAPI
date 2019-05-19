@@ -3,6 +3,7 @@ import {
 } from 'pg';
 import config from '../../config/config';
 import userDate from '../helpers/Date';
+import totalAmountdetail from '../helpers/Totalamount';
 
 require('dotenv').config();
 
@@ -36,8 +37,8 @@ class DatabaseInit {
           loanid VARCHAR(20) NOT NULL,
           userid VARCHAR(28) NOT NULL,
           requestedOn VARCHAR(28) NOT NULL,
-          status VARCHAR(10)  NOT NULL,
-          repaid VARCHAR(10)  NOT NULL,
+          status VARCHAR(10) NOT NULL,
+          repaid VARCHAR(10) NOT NULL,
           tenor VARCHAR(12) NOT NULL,
           principalAmount VARCHAR(10) NOT NULL,
           paymentInstallment VARCHAR(10)  NOT NULL,
@@ -49,24 +50,22 @@ class DatabaseInit {
           id serial PRIMARY KEY,
           loanid VARCHAR(20) NOT NULL,
           useremail VARCHAR(100) NOT NULL,
-          requestedOn VARCHAR(28) NOT NULL,
+          paidOn VARCHAR(28) NOT NULL,
           status VARCHAR(10)  NOT NULL,
           repaid VARCHAR(10)  NOT NULL,
-          tenor VARCHAR(12) NOT NULL,
           principalAmount VARCHAR(10) NOT NULL,
-          paymentInstallment VARCHAR(10)  NOT NULL,
-          totalAmounttopay VARCHAR(28) NOT NULL,
-          balance VARCHAR(28) NOT NULL,
-          intrestRate VARCHAR(28) NOT NULL
-        )`;
+          balance VARCHAR(10) NOT NULL,
+          paid VARCHAR(10)  NOT NULL,
+          paymentNo VARCHAR(28) NOT NULL,
+          )`;
 
       this.truncate = 'TRUNCATE TABLE users CASCADE';
       this.dropTables = 'DROP TABLE IF EXISTS users';
       this.deleteData = 'DELETE FROM users';
       this.initDb();
+      this.requestLoan()
       this.createAdmin();
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   async query(sql, data = []) {
@@ -93,8 +92,17 @@ class DatabaseInit {
       isAdmin: true,
       signedupDate: userDate.date(),
     };
-    const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) values($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9)';
+    const sql = 'INSERT INTO users (userid, email, firstname, lastname, userpassword, address, status, isAdmin, signedupDate) values($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
     const values = [adminUser.userid, adminUser.email, adminUser.firstname, adminUser.lastname, adminUser.password, adminUser.address, adminUser.status, adminUser.isAdmin, adminUser.signedupDate];
+    const { rows } = await this.query(sql, values);
+  }
+
+  async requestLoan() {
+    const amount = parseFloat(2000);
+    const calculateTotalamount = totalAmountdetail.totalAmountdata(amount);
+    const sqlInsert = 'INSERT INTO loans (loanid, userid, requestedOn,status,repaid,tenor,principalAmount,paymentInstallment,totalAmounttopay,intrestRate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9, $10)  returning *';
+    const values = ['123loan', '123admin','1/1/2019', 'pending', false, calculateTotalamount.numberOfInstallments, amount, calculateTotalamount.installmentAmount, calculateTotalamount.totalamounttoPay, calculateTotalamount.interestRate];    
+    const {rows} = await this.query(sqlInsert, values);
   }
 
   async initDb() {
@@ -103,9 +111,8 @@ class DatabaseInit {
       await this.query(this.queryLoans);
       await this.query(this.queryPayments);
       console.log("tables created");
-      
-    } catch (error) {
-    }
+
+    } catch (error) {}
   }
 
   async deleteData() {

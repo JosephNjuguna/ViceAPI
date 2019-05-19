@@ -4,7 +4,7 @@
   "description": "postgresql api ",
   "main": "app.js",
   "scripts": {
-    "test": "NODE_ENV=test nyc mocha --require babel-register ./app/test/*.js  --timeout 150000 --exit",
+    "test": "NODE_ENV=test nyc mocha --require babel-register ./server/test/*.js  --timeout 150000 --exit",
     "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
     "start": "NODE_ENV=dev nodemon server.js --exec babel-node --",
     "lint": "node_modules/.bin/eslint ./ --fix",

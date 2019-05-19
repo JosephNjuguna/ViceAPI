@@ -73,7 +73,7 @@ describe('/USER DATA', () => {
   describe('/GET user datail', () => {
     it('should not return a user when ID is invalid', (done) => {
       chai.request(app)
-        .get('/api/v1/profile')
+        .get('/api/v2/profile')
         .set('authorization', `Bearer ${wrongIdToken}`)
         .end((err, res) => {
           res.should.have.status(404);
@@ -84,7 +84,7 @@ describe('/USER DATA', () => {
 
     it('should return one user detail', (done) => {
       chai.request(app)
-        .get('/api/v1/profile')
+        .get('/api/v2/profile')
         .set('authorization', `Bearer ${userToken}`)
         .end((err, res) => {
           res.should.have.status(200);
@@ -97,7 +97,7 @@ describe('/USER DATA', () => {
   describe('/GET all users', () => {
     it('should not  return all users if not admin', (done) => {
       chai.request(app)
-        .get('/api/v1/users')
+        .get('/api/v2/users')
         .set('Authorization', `Bearer ${userToken}`)
         .end((err, res) => {
           if (err) return done();
@@ -108,7 +108,7 @@ describe('/USER DATA', () => {
 
     it('should return all users', (done) => {
       chai.request(app)
-        .get('/api/v1/users')
+        .get('/api/v2/users')
         .set('Authorization', `Bearer ${adminToken}`)
         .end((err, res) => {
           if (err) return done();
@@ -121,7 +121,7 @@ describe('/USER DATA', () => {
   describe('/PATCH admin verify user', () => {
     it('should check user email is not available', (done) => {
       chai.request(app)
-        .patch('/api/v1/user/test2@mail.com/verify')
+        .patch('/api/v2/user/test2@mail.com/verify')
         .set('authorization', `Bearer ${adminToken}`)
         .send({
           status: 'verified',
@@ -135,7 +135,7 @@ describe('/USER DATA', () => {
 
     it('should check user email is available', (done) => {
       chai.request(app)
-        .patch('/api/v1/user/test1@mail.com/verify')
+        .patch('/api/v2/user/test1@mail.com/verify')
         .set('authorization', `Bearer ${adminToken}`)
         .send({
           status: 'verified',

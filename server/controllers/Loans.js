@@ -9,6 +9,7 @@ const loanId = Userid.uniqueId();
 const requestedDate = userDate.date();
 
 class Loans {
+
 	static async requestLoan(req, res) {
 		try {
 			const token = req.headers.authorization.split(' ')[1];
@@ -20,7 +21,7 @@ class Loans {
 			const dateRequested = requestedDate;
 			const loanrequestedId = loanId;
 			
-			const loanModel = await Models.requestloan({
+			const loanModel = await Models.requestLoan({
 				requestedloan,
 				firstname,
 				lastname,
@@ -31,6 +32,7 @@ class Loans {
 			});
 			reqResponses.handleSuccess(200, 'Loan request successful', await loanModel, res);
 		} catch (error) {
+			console.log(error);
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -40,35 +42,12 @@ class Loans {
 			const token = req.headers.authorization.split(' ')[1];
 			const decoded = jwt.verify(token, process.env.JWT_KEY);
 			req.userData = decoded;
-			const loanStatus = await Models.userloanStatus(req.userData.email);
-			console.log('passwed 1');
 
+			const loanStatus = await Models.findMail(req.userData.userid);
 			if (!loanStatus) {
 				return reqResponses.handleError(404, loanStatus.result, res);
 			}
 			reqResponses.handleSuccess(200, 'success', loanStatus.result, res);
-		} catch (error) {
-			console.log(error.toString());
-			reqResponses.handleError(500, error.toString(), res);
-		}
-	}
-
-	static async payloan(req, res) {
-		try {
-			const token = req.headers.authorization.split(' ')[1];
-			const decoded = jwt.verify(token, process.env.JWT_KEY);
-			req.userData = decoded;
-			const loanModel = new Models({
-				email: req.userData.email,
-				loanInstallment: req.body.amount,
-				paidOn: requestedOn,
-				userloanId: req.params.loan_id,
-			});
-
-			if (!await loanModel.payloan()) {
-				return reqResponses.handleError(404, loanModel.result, res);
-			}
-			reqResponses.handleSuccess(200, 'loan payment successful', loanModel.result, res);
 		} catch (error) {
 			reqResponses.handleError(500, error.toString(), res);
 		}
@@ -76,12 +55,14 @@ class Loans {
 
 	static async allLoanapplications(req, res) {
 		try {
+			console.log("found");
 			const loanData = await Models.allLoanapplications();
 			if (!loanData) {
 				return reqResponses.handleError(404, 'No records found', res);
 			}
-			return reqResponses.handleSuccess(200, 'Loan Applications Records', loanData, res);
+			reqResponses.handleSuccess(200, 'Loan Applications Records', loanData, res);
 		} catch (error) {
+			console.log(error);
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -95,37 +76,30 @@ class Loans {
 			}
 			reqResponses.handleSuccess(200, 'success', oneloanData, res);
 		} catch (error) {
+			console.log(error.toString());
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
 
-	static async acceptloans(req, res) {
+	static async acceptloanapplication(req, res) {
 		try {
 			const userloanId = req.params.loan_id;
-			const {
-				status,
-			} = req.body;
-			const acceptLoan = await Models.acceptloans(userloanId, status);
-			console.log('passwed 4');
+			const status = req.body.status;
+			const acceptLoan = await Models.acceptloanapplication(userloanId, status);
 			if (!acceptLoan) {
 				return reqResponses.handleError(404, 'Loan id not found', res);
 			}
-			return reqResponses.handleSuccess(200, 'loan accepted successfully', acceptLoan, res);
+			reqResponses.handleSuccess(200, 'loan accepted successfully', acceptLoan, res);
 		} catch (error) {
 			console.log(error.toString());
-
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
 
 	static async loanRepaidstatus(req, res) {
 		try {
-			const {
-				status,
-				repaid,
-			} = req.query;
+			const { status,repaid } = req.query;
 			const loanstatus = await Models.loanRepaidstatus(status, repaid);
-			console.log('passwed 5');
 			if (!loanstatus) {
 				return reqResponses.handleError(404, 'No loans records found', res);
 			}
@@ -141,13 +115,10 @@ class Loans {
 			const decoded = jwt.verify(token, process.env.JWT_KEY);
 			req.userData = decoded;
 
-			const {
-				email,
-			} = req.userData;
+			const email = req.userData.email;
 			const userloanId = req.params.loan_id;
 
 			const paymentHistory = await Models.repaymentHistory(email, userloanId);
-			console.log('passwed 5');
 			if (!paymentHistory) {
 				return reqResponses.handleError(404, 'Loan id not found', res);
 			}
@@ -160,7 +131,6 @@ class Loans {
 	static async allLoanpayments(req, res) {
 		try {
 			const loanData = await Models.allLoanpayments();
-			console.log('passwed 6');
 			if (!loanData) {
 				return reqResponses.handleError(404, loanData.result, res);
 			}
@@ -170,6 +140,28 @@ class Loans {
 		}
 	}
 	
+	// ---------------
+	static async payloan(req, res) {
+		try {
+			const token = req.headers.authorization.split(' ')[1];
+			const decoded = jwt.verify(token, process.env.JWT_KEY);
+			req.userData = decoded;
+			const loanModel = await new Models({
+				userid: req.userData.userid,
+				loanInstallment: req.body.amount,
+				paidOn: requestedOn,
+				userloanId: req.params.loan_id
+			});
+
+			if (!loanModel.payloan()) {
+				return reqResponses.handleError(404, loanModel.result, res);
+			}
+			reqResponses.handleSuccess(200, 'loan payment successful', loanModel.result, res);
+		} catch (error) {
+			reqResponses.handleError(500, error.toString(), res);
+		}
+	}
+
 }
 
 export default Loans;

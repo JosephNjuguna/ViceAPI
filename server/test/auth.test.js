@@ -44,7 +44,7 @@ describe('/USERS auth', () => {
   describe('/POST AUTHENTIACTION ', () => {
     it('should fail with empty firstname field', (done) => {
       chai.request(app)
-        .post('/api/v1/signup')
+        .post('/api/v2/signup')
         .send(userData.user1)
         .end((err, res) => {
           res.should.have.status(400);
@@ -55,7 +55,7 @@ describe('/USERS auth', () => {
 
     it('should fail with empty lastname field', (done) => {
       chai.request(app)
-        .post('/api/v1/signup')
+        .post('/api/v2/signup')
         .send(userData.user2)
         .end((err, res) => {
           res.should.have.status(400);
@@ -66,7 +66,7 @@ describe('/USERS auth', () => {
 
     it('should fail with empty email field', (done) => {
       chai.request(app)
-        .post('/api/v1/signup')
+        .post('/api/v2/signup')
         .send(userData.user3)
         .end((err, res) => {
           res.should.have.status(400);
@@ -77,7 +77,7 @@ describe('/USERS auth', () => {
 
     it('should fail with empty password field', (done) => {
       chai.request(app)
-        .post('/api/v1/signup')
+        .post('/api/v2/signup')
         .send(userData.user4)
         .end((err, res) => {
           res.should.have.status(400);
@@ -88,7 +88,7 @@ describe('/USERS auth', () => {
 
     it('should successfully sign up user', (done) => {
       chai.request(app)
-        .post('/api/v1/signup')
+        .post('/api/v2/signup')
         .send(userData.user5)
         .end((err, res) => {
           res.should.have.status(201);
@@ -99,7 +99,7 @@ describe('/USERS auth', () => {
 
     it('should check user email already exist', (done) => {
       chai.request(app)
-        .post('/api/v1/signup')
+        .post('/api/v2/signup')
         .send(user)
         .end((err, res) => {
           res.should.have.status(409);
@@ -110,9 +110,10 @@ describe('/USERS auth', () => {
   });
 
   describe('/POST login', () => {
+
     it('should have user email', (done) => {
       chai.request(app)
-        .post('/api/v1/login')
+        .post('/api/v2/login')
         .send({
           email: '',
           password: 'qwerQ@qwerre123',
@@ -123,9 +124,10 @@ describe('/USERS auth', () => {
           done();
         });
     });
+
     it('should have user password ', (done) => {
       chai.request(app)
-        .post('/api/v1/login')
+        .post('/api/v2/login')
         .send({
           email: 'test1@mail.com',
           password: '',
@@ -136,9 +138,10 @@ describe('/USERS auth', () => {
           done();
         });
     });
+
     it('should successfully log in user', (done) => {
       chai.request(app)
-        .post('/api/v1/login')
+        .post('/api/v2/login')
         .send({
           email: 'test1@mail.com',
           password: 'qwerQ@qwerre123',
@@ -148,9 +151,10 @@ describe('/USERS auth', () => {
           done();
         });
     });
+
     it('should check user password mismatch', (done) => {
       chai.request(app)
-        .post('/api/v1/login')
+        .post('/api/v2/login')
         .send({
           email: 'test1@mail.com',
           password: 'qwerQ@qwerre13',
@@ -160,5 +164,7 @@ describe('/USERS auth', () => {
           done();
         });
     });
+    
+
   });
 });

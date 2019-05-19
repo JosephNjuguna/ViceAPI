@@ -4,6 +4,7 @@ import Loanmodel from '../models/Loans';
 import jwt from 'jsonwebtoken';
 
 class Validations {
+  
   static validatesignup(req, res, next) {
     try {
       const {
@@ -83,21 +84,20 @@ class Validations {
     }
   }
 
-  static validateLoan(req, res, next) {
-    const loan = req.body.amount;
-    let re;
-
-    if (!loan || loan === '') {
-      return reqResponses.handleError(400, 'loan field required', res);
-    }
-    if (loan) {
-      re = /[0-9_]{3,}/;
-      if (!re.test(loan)) {
-        return reqResponses.handleError(400, 'enter 3 digits or more', res);
-      }
-    }
-    next();
-  }
+  static async validateLoan(req, res, next) {
+		const loan = req.body.amount;		
+		if (!loan || loan === '') {
+			return reqResponses.handleError(400, 'loan field required', res);
+		}
+		if(loan){
+			const re = /([0-9]*[.])?[0-9]+/;
+			if (!re.test(loan)) reqResponses.handleError(400, 'enter amount in digits not strings', res);
+		}
+		if (parseFloat(loan, 10) < parseFloat(500, 10) || parseFloat(loan)  > 20000 ) {
+			return reqResponses.handleError(400, 'Enter correct loan amount, between 500sh - 20000sh', res);
+		}
+		next();
+	}
 
   static async validatenewEmail(req, res, next) {
     try {
@@ -124,6 +124,7 @@ class Validations {
       reqResponses.handleError(500, error.toString(), res);
     }
   }
+
   static async validateexistingloanrequest(req, res, next) {
     try {
       const token = req.headers.authorization.split(' ')[1];
@@ -140,5 +141,6 @@ class Validations {
       reqResponses.handleError(500, error.toString(), res);
     }
   }
+
 }
 export default Validations;
