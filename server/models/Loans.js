@@ -17,9 +17,8 @@ class LoanModel {
     const calculateTotalamount = totalAmountdetail.totalAmountdata(amount);
     const sqlInsert = 'INSERT INTO loans (loanid, userid, requestedOn,status,repaid,tenor,principalAmount,paymentInstallment,totalAmounttopay,intrestRate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9, $10)  returning *';
     const values = [loanrequestedId, userid, dateRequested, 'pending', false, calculateTotalamount.numberOfInstallments, amount, calculateTotalamount.installmentAmount, calculateTotalamount.totalamounttoPay, calculateTotalamount.interestRate];
-    const { loanRequests } = await Db.query(sqlInsert, values);
-    const data = loanRequests;
-    console.log(data, "values" );
+    const { rows } = await Db.query(sqlInsert, values);
+    this.result = rows;
     return true;
   }
 
@@ -36,11 +35,12 @@ class LoanModel {
   }
 
   static async allLoanapplications() {
-    const { rows } = await Db.query('SELECT * FROM loans');
+    const {
+      rows
+    } = await Db.query('SELECT * FROM loans');
     if (rows.length == 0) {
       return false;
     }
-    console.log(rows);
     return true
   }
 
@@ -51,40 +51,31 @@ class LoanModel {
     }
     return true;
   }
+  static async paymentDetail(loanid, userid, paidOn, totalamounttoPay){
+    const sql = 'INSERT INTO payments(loanid, userid, paidOn, status, repaid, principalAmount, balance, paid, paymentNo ) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9) returning *';
+    const values = [loanid, userid, paidOn, 'accepted', "false", totalamounttoPay, totalamounttoPay, 0, 0];
+    const { rows } = await Db.query(sql, values);
+  }
 
-  static async acceptloanapplication(userloanId, status) {
-    const { obj } = await Db.query(`SELECT * FROM loans WHERE loanid ='${userloanId}'`);
-    if (!obj) {
+  static async loanAccepted(status, loanid){
+    const rowData = 'UPDATE loans SET status = ($1) WHERE loanid = ($2) returning *;';
+    const valuesUpdate = [status, loanid];
+    const { rows } = await Db.query(rowData, valuesUpdate);
+    return true;
+  }
+
+  static async acceptloanapplication(userloanId, status, paidOn) {
+    const { rows } = await Db.query(`SELECT * FROM loans WHERE loanid ='${userloanId}'`);
+    if (rows.length === 0) {
       return false;
     }
-
-    const aPayment = {
-      loanId: obj.loanId,
-      user: obj.user,
-      amount: obj.totalAmounttopay,
-      balance: obj.totalAmounttopay,
-      paid: 0,
-      paymentNo: 0
-    };
-
-    const sql = 'INSERT INTO payments(loanid, useremail,paidOn,status,repaid, principalAmount, balance, paid, paymentNo ) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9)';
-    const values = [aPayment.loanId, aPayment.user, date, 'accepted', "false", aPayment.amount, aPayment.balance, aPayment.paid, aPayment.paymentNo];
-    const {
-      rowdata
-    } = await Db.query(sql, values);
-    console.log(rowdata);
-
-    const sqlUpdate = 'UPDATE loans SET status = ($1) WHERE email = $2 returning *;';
-    const valuesUpdate = [status, email];
-    const { rows } = await Db.query(sqlUpdate, valuesUpdate);
-    console.log(rows);
-
-    return true;
+    const paymentFunction = await this.paymentDetail(rows[0].loanid, rows[0].userid, paidOn, rows[0].totalamounttopay );
+    const loanAcceptance = await this.loanAccepted(status, rows[0].loanid);
+    return loanAcceptance;
   }
 
   static async loanRepaidstatus(status, repaid) {
     let repaidStatus;
-
     if (repaid === 'false') {
       repaidStatus = false;
     } else if (repaid === 'true') {
@@ -172,7 +163,9 @@ class LoanModel {
   async payloan() {
     const amount = parseFloat(this.payload.loanInstallment);
     const sql = `SELECT * FROM loans WHERE loanid ='${this.payload.userloanId} AND userid = '${this.payload.userid}'`;
-    const { obj } = await Db.query(sql);
+    const {
+      obj
+    } = await Db.query(sql);
     if (obj) {
       const userLoanPayments = payments.filter(o => o.loanId = obj.loanId);
       const paymentsCount = userLoanPayments.length;
@@ -190,7 +183,9 @@ class LoanModel {
         const values = [loanpaymentDetail.loanId, loanpaymentDetail.user, loanpaymentDetail.requestedOn, loanpaymentDetail.status, loanpaymentDetail.tenor, loanpaymentDetail.principalAmount, loanpaymentDetail.paymentInstallment, loanpaymentDetail.totalAmounttopay, loanpaymentDetail.interestRate, loanpaymentDetail.paidOn];
 
         const sql = 'INSERT INTO loans (loanid, userid, requestedOn,status,repaid,tenor,principalAmount,paymentInstallment,totalAmounttopay,intrestRate) VALUES($1, $2, $3, $4, $5 ,$6 ,$7 ,$8 ,$9, $10) returning *;';
-        const { result } = await Db.query(sql, values);
+        const {
+          result
+        } = await Db.query(sql, values);
         console.log(result);
         const payment = userLoanPayments[0];
         if (payment.paymentNo === 0) {

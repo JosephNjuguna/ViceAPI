@@ -46,7 +46,7 @@ describe('/LOAN', () => {
 
   after('after all test', (done) => {
     Db.query('DELETE FROM loans');
-    Db.query('DROP TABLE IF EXISTS loans');
+    // Db.query('DROP TABLE IF EXISTS loans');
     done();
   });
 
@@ -160,7 +160,7 @@ describe('/LOAN', () => {
 
 		it('should get all loans fully paid', (done) => {
 			chai.request(app)
-				.get('/api/v2/fullyrepaid?status=accepted&repaid=true')
+				.get('/api/v2/loans?status=accepted&repaid=true')
 				.set('authorization', `Bearer ${adminToken}`)
 				.end((err, res) => {
 					res.should.have.status(200);
@@ -171,7 +171,7 @@ describe('/LOAN', () => {
 
 		it('should get all loans not fully paid', (done) => {
 			chai.request(app)
-				.get('/api/v2/notfullyrepaid?status=accepted&repaid=false')
+				.get('/api/v2/loans?status=accepted&repaid=false')
 				.set('authorization', `Bearer ${adminToken}`)
 				.end((err, res) => {
 					res.should.have.status(200);

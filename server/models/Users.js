@@ -63,6 +63,7 @@ class UsersModel {
   }
 
   static async findOne(userid) {
+    console.log(userid);
     const sql = `SELECT * FROM users WHERE userid='${userid}'`;
     const { rows } = await Db.query(sql);
     if (rows.length === 0) {

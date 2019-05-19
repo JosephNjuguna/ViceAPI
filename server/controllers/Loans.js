@@ -32,7 +32,6 @@ class Loans {
 			});
 			reqResponses.handleSuccess(200, 'Loan request successful', await loanModel, res);
 		} catch (error) {
-			console.log(error);
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -55,14 +54,12 @@ class Loans {
 
 	static async allLoanapplications(req, res) {
 		try {
-			console.log("found");
 			const loanData = await Models.allLoanapplications();
 			if (!loanData) {
 				return reqResponses.handleError(404, 'No records found', res);
 			}
 			reqResponses.handleSuccess(200, 'Loan Applications Records', loanData, res);
 		} catch (error) {
-			console.log(error);
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -76,7 +73,6 @@ class Loans {
 			}
 			reqResponses.handleSuccess(200, 'success', oneloanData, res);
 		} catch (error) {
-			console.log(error.toString());
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -85,13 +81,13 @@ class Loans {
 		try {
 			const userloanId = req.params.loan_id;
 			const status = req.body.status;
-			const acceptLoan = await Models.acceptloanapplication(userloanId, status);
+			const paidOn = requestedDate;			
+			const acceptLoan = await Models.acceptloanapplication(userloanId, status, paidOn);
 			if (!acceptLoan) {
 				return reqResponses.handleError(404, 'Loan id not found', res);
 			}
 			reqResponses.handleSuccess(200, 'loan accepted successfully', acceptLoan, res);
 		} catch (error) {
-			console.log(error.toString());
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
@@ -139,7 +135,6 @@ class Loans {
 			reqResponses.handleError(500, error.toString(), res);
 		}
 	}
-	
 	// ---------------
 	static async payloan(req, res) {
 		try {
